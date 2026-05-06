@@ -1,0 +1,165 @@
+# ============================================================================
+# RAG Framework — Default Configuration
+# ============================================================================
+# Optimizado para hardware con 8 GB VRAM (e.g. RTX 4060).
+#   LLM       : qwen3:8b          (Ollama, ~5.2 GB VRAM)
+#   Embedding : bge-m3:latest     (Ollama, ~1.2 GB VRAM, multilingüe, 1024 dims)
+#   Reranker  : BAAI/bge-reranker-v2-m3 (HuggingFace/local, ~635 MB)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# LLM Configuration
+# ----------------------------------------------------------------------------
+# Supported providers: ollama, huggingface
+llm:
+  provider: ollama
+  model: qwen3:8b
+  base_url: "http://localhost:11434"
+
+  # HuggingFace settings (used when provider is "huggingface")
+  # hf_model_id: "meta-llama/Llama-2-7b-chat-hf"
+  # hf_token: null
+  # device: auto
+
+  # Local model support (already downloaded)
+  # provider: huggingface
+  # local_model_path: "./models/llm/TinyLlama--TinyLlama-1.1B-Chat-v1.0"
+  # device: auto
+
+  # Generation parameters
+  context_window: 8192        # qwen3 soporta hasta 32K; 8K es suficiente para RAG
+  temperature: 0.0            # determinista
+  top_p: 0.9
+  top_k: 40
+  max_tokens: 1024            # suficiente para respuestas detalladas
+  repeat_penalty: 1.1         # suave, evita penalizar listas largas
+  stop_sequences:
+    - "\n\nPregunta:"
+    - "\n\nUsuario:"
+    - "\n\nContexto:"
+  request_timeout: 300.0      # margen amplio para síntesis con mucho contexto
+  thinking: false             # desactiva chain-of-thought en qwen3
+                              # (evita bloques <think> que multiplican latencia)
+
+# ----------------------------------------------------------------------------
+# Embedding Configuration
+# ----------------------------------------------------------------------------
+# Supported providers: ollama, huggingface
+embedding:
+  provider: ollama
+  model: bge-m3:latest
+  base_url: "http://localhost:11434"
+  # bge-m3: multilingüe, 1024 dims, ventana de 8192 tokens
+  # NOTA: cambiar el modelo de embedding requiere re-indexar todos los documentos
+
+  # HuggingFace settings (used when provider is "huggingface")
+  # hf_model_id: "sentence-transformers/all-MiniLM-L6-v2"
+  # device: auto
+
+# ----------------------------------------------------------------------------
+# Vector Store Configuration
+# ----------------------------------------------------------------------------
+# Supported providers: lancedb, chroma, faiss, qdrant, pinecone
+vector_store:
+  provider: lancedb
+  persist_directory: "./vector_store"
+  collection_name: documents
+  lance_mode: overwrite       # overwrite or append
+
+# ----------------------------------------------------------------------------
+# Document Chunking Configuration
+# ----------------------------------------------------------------------------
+chunking:
+  chunk_size: 1536
+  chunk_overlap: 200
+  use_semantic_chunking: true
+  semantic_oversized_factor: 1.5  # chunks > 1536*1.5 = 2304 chars get re-split
+
+# ----------------------------------------------------------------------------
+# Retrieval Configuration
+# ----------------------------------------------------------------------------
+retrieval:
+  use_hybrid_search: true
+  top_k: 15                   # candidatos que entran al reranker
+  alpha: 0.5                  # balance BM25/vector (0=BM25, 1=vector)
+  rrf_k: 80                   # Reciprocal Rank Fusion constant
+
+  # Reranker configuration
+  reranker:
+    enabled: true
+    provider: huggingface     # FlagEmbeddingReranker directo en CUDA
+    model: BAAI/bge-reranker-v2-m3
+    local_model_path: "./models/bge-reranker-v2-m3"
+    top_n: 7                  # chunks finales que llegan al LLM
+    device: auto
+
+# ----------------------------------------------------------------------------
+# Directory Configuration
+# ----------------------------------------------------------------------------
+directories:
+  documents_dir: "./documents"
+  vector_store_dir: "./vector_store"
+
+# ----------------------------------------------------------------------------
+# Prompt Template
+# ----------------------------------------------------------------------------
+# Available templates:
+#   Spanish: default, conversational_es, academic_es, summary_es
+#   English: default_en, conversational_en, academic_en, code_assistant_en
+#   Multilingual: strict_factual, chain_of_thought, comparison
+prompt_template: default
+
+# For custom prompts, set prompt_template to "custom" and provide:
+# custom_prompt: |
+#   Your custom prompt template here.
+#   Must include {context_str} and {query_str} placeholders.
+
+# ----------------------------------------------------------------------------
+# Debug Mode
+# ----------------------------------------------------------------------------
+debug: false
+
+# ============================================================================
+# SQL DATABASE CONFIGURATION
+# ============================================================================
+sql:
+  enabled: true
+
+  connection:
+    db_type: sqlite
+    sqlite_path: "./data/proyectos_docentes.db"
+    pool_size: 5
+    query_timeout: 30.0
+
+  schema:
+    include_tables: []
+    exclude_tables: []
+    include_sample_values: true
+    sample_values_limit: 5
+    include_relationships: true
+
+  security:
+    allow_only_select: true
+    max_rows: 100
+    max_execution_time: 30.0
+
+  max_retries: 3
+
+# ============================================================================
+# QUERY ROUTER CONFIGURATION
+# ============================================================================
+# The router determines whether to use documents, SQL, or both for each query.
+router:
+  enabled: true
+  default_source: unstructured  # unstructured, structured, hybrid
+
+# ============================================================================
+# CORRECTIVE RAG CONFIGURATION
+# ============================================================================
+# Adds an LLM-based document grading step between retrieval and synthesis.
+# Each chunk is evaluated for relevance; irrelevant chunks are discarded.
+# If too few relevant chunks remain, the query is rewritten and retried.
+corrective_rag:
+  enabled: false              # deshabilitado por defecto (coste extra de LLM calls)
+  relevance_threshold: 0.5
+  max_retries: 1

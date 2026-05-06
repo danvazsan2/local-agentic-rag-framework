@@ -1,0 +1,26 @@
+import { NextResponse } from "next/server"
+
+const RAG_API_URL = process.env.RAG_API_URL || "http://localhost:8765"
+
+/** GET /api/chat/custom-rag/templates — list available prompt templates */
+export async function GET() {
+  try {
+    const res = await fetch(`${RAG_API_URL}/templates`)
+    const data = await res.json()
+    return NextResponse.json(data, { status: res.status })
+  } catch (error: any) {
+    if (error.code === "ECONNREFUSED") {
+      return NextResponse.json(
+        {
+          error: "RAG server not available.",
+          details: "Run: python rag/run_rag.py api"
+        },
+        { status: 503 }
+      )
+    }
+    return NextResponse.json(
+      { error: error.message, templates: [] },
+      { status: 500 }
+    )
+  }
+}

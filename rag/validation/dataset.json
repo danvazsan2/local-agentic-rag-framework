@@ -1,0 +1,1693 @@
+[
+  {
+    "id": "r01",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cómo se evalúa Fundamentos de Programación?",
+    "expected_source_pattern": ".*2060001.*",
+    "expected_keywords": [
+      "evaluación",
+      "examen",
+      "prácticas",
+      "nota"
+    ],
+    "expected_subject": "Fundamentos de Programación",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Control positivo canónico. La asignatura se menciona por nombre completo y la información de evaluación está en todos los PDFs Proyecto. Debe resolverse con retrieval vectorial básico sin necesidad de QueryPreprocessor ni CRAG. Sirve como cota inferior de calidad.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r02",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué temas se estudian en Redes de Computadores?",
+    "expected_source_pattern": ".*2060014.*",
+    "expected_keywords": [
+      "protocolo",
+      "TCP",
+      "red",
+      "capa",
+      "tema"
+    ],
+    "expected_subject": "Redes de Computadores",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Consulta de contenidos con nombre exacto de asignatura. El QueryPreprocessor debe identificar el código 2060014. Sin él, el retrieval puede mezclarse con Arquitectura de Redes (2060016) que comparte vocabulario de protocolos y capas.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r03",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuáles son las competencias que trabaja Sistemas Operativos?",
+    "expected_source_pattern": ".*2060017.*",
+    "expected_keywords": [
+      "competencia",
+      "proceso",
+      "memoria",
+      "gestión",
+      "sistema operativo"
+    ],
+    "expected_subject": "Sistemas Operativos",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Consulta de competencias con nombre exacto. La asignatura tiene nombre propio sin ambigüedad en el corpus. Sirve para validar que el retrieval de campos de competencias funciona correctamente en los PDFs.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r04",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuál es el sistema de evaluación de la asignatura Estadística?",
+    "expected_source_pattern": ".*2060007.*",
+    "expected_keywords": [
+      "evaluación",
+      "examen",
+      "prácticas",
+      "porcentaje"
+    ],
+    "expected_subject": "Estadística",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Evaluación de Estadística con nombre completo. Caso fácil: hay PDFs Proyecto de 6 grupos y todos describen criterios de evaluación. Controla que retrieval de sección de evaluación funciona.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r05",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué metodología docente utiliza la asignatura de Inteligencia Artificial?",
+    "expected_source_pattern": ".*2060021.*",
+    "expected_keywords": [
+      "metodología",
+      "clase",
+      "teoría",
+      "práctica",
+      "laboratorio"
+    ],
+    "expected_subject": "Inteligencia Artificial",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Metodología docente de IA con nombre completo. Aunque IA solapa con otras asignaturas del cluster, el nombre exacto permite que el QueryPreprocessor filtre directamente a 2060021. Sirve para validar que la metodología se recupera bien.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r06",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuáles son los objetivos de aprendizaje de Arquitectura de Computadores?",
+    "expected_source_pattern": ".*2060015.*",
+    "expected_keywords": [
+      "objetivo",
+      "aprendizaje",
+      "computador",
+      "arquitectura",
+      "resultado"
+    ],
+    "expected_subject": "Arquitectura de Computadores",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Objetivos de una asignatura obligatoria de 2.º con nombre específico. El término 'Arquitectura de Computadores' es distinto de 'Arquitectura de Redes', permitiendo filtrar bien.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r07",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué bibliografía recomienda la asignatura Álgebra Lineal y Numérica?",
+    "expected_source_pattern": ".*2060006.*",
+    "expected_keywords": [
+      "bibliografía",
+      "libro",
+      "autor",
+      "referencia"
+    ],
+    "expected_subject": "Álgebra Lineal y Numérica",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Bibliografía de asignatura con nombre exacto. La sección bibliografía existe tanto en el Programa como en los Proyectos docentes. Valida que el retrieval alcanza la sección de bibliografía.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r08",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cómo se califica a los estudiantes en Análisis y Diseño de Datos y Algoritmos?",
+    "expected_source_pattern": ".*2060010.*",
+    "expected_keywords": [
+      "calificación",
+      "evaluación",
+      "examen",
+      "práctica",
+      "nota"
+    ],
+    "expected_subject": "Análisis y Diseño de Datos y Algoritmos",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Criterios de evaluación de ADDA con nombre completo. La asignatura tiene 12 créditos y proyectos para los grupos 1TI, 2TI, 3TI. Valida que el retrieval llega a la sección de calificación.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r09",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué actividades formativas incluye Introducción a la Matemática Discreta?",
+    "expected_source_pattern": ".*2060005.*",
+    "expected_keywords": [
+      "actividad",
+      "clase",
+      "taller",
+      "horas",
+      "formativa"
+    ],
+    "expected_subject": "Introducción a la Matemática Discreta",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Actividades formativas de IMD con nombre completo. Existe solapamiento con Matemática Discreta (2060013), pero el nombre completo permite filtrar a 2060005. Valida que las actividades formativas se recuperan de los PDFs.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r10",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué temas componen el temario de Lógica Informática?",
+    "expected_source_pattern": ".*2060012.*",
+    "expected_keywords": [
+      "lógica",
+      "proposicional",
+      "predicado",
+      "tema",
+      "deducción"
+    ],
+    "expected_subject": "Lógica Informática",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Temario de Lógica Informática con nombre exacto. Asignatura optativa de 2.º con nombre sin ambigüedad en el corpus. Control de que el retrieval alcanza los contenidos temáticos.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r11",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuáles son los resultados de aprendizaje esperados y las actividades que los desarrollan en Estructura de Computadores?",
+    "expected_source_pattern": ".*2060008.*",
+    "expected_keywords": [
+      "resultado",
+      "aprendizaje",
+      "actividad",
+      "computador",
+      "electrónica"
+    ],
+    "expected_subject": "Estructura de Computadores",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta que combina dos secciones del documento (resultados de aprendizaje + actividades formativas). Requiere que la síntesis LLM integre información de varios chunks. La dificultad reside en recuperar exactamente los chunks correctos de ambas secciones.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r12",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "Explícame qué se estudia en Programación Declarativa y cómo se evalúa",
+    "expected_source_pattern": ".*2060023.*",
+    "expected_keywords": [
+      "declarativa",
+      "lógica",
+      "funcional",
+      "evaluación",
+      "tema"
+    ],
+    "expected_subject": "Programación Declarativa",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta combinada (contenidos + evaluación) de una optativa del cluster IA. 'Programación Declarativa' puede solapar con 'Procesadores de Lenguajes' y con vocabulario de 'Programación Funcional'. El filtro de metadatos debe identificar 2060023.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r13",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuánto pesa el examen teórico en la nota final de Fundamentos de Programación y qué temas entran en él?",
+    "expected_source_pattern": ".*2060001.*",
+    "expected_keywords": [
+      "examen",
+      "teórico",
+      "peso",
+      "porcentaje",
+      "nota",
+      "tema"
+    ],
+    "expected_subject": "Fundamentos de Programación",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Pregunta que requiere cruzar la sección de evaluación (porcentajes) con la sección de contenidos (temas del examen). FP tiene 9 grupos con PDFs Proyecto independientes; puede haber variación entre grupos. La síntesis LLM debe integrar datos de múltiples chunks.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r14",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué competencias específicas y transversales desarrollan los estudiantes en Seguridad en Sistemas Informáticos y en Internet?",
+    "expected_source_pattern": ".*2060042.*",
+    "expected_keywords": [
+      "competencia",
+      "seguridad",
+      "transversal",
+      "específica",
+      "internet"
+    ],
+    "expected_subject": "Seguridad en Sistemas Informáticos y en Internet",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta sobre competencias de una optativa de 4.º. El nombre es largo y específico, lo que facilita el filtro. La dificultad está en que las competencias específicas y transversales pueden estar en secciones separadas del PDF.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r15",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cómo funciona la evaluación continua en Planificación y Gestión de Proyectos Informáticos?",
+    "expected_source_pattern": ".*2060040.*",
+    "expected_keywords": [
+      "evaluación",
+      "continua",
+      "proyecto",
+      "entrega",
+      "criterio"
+    ],
+    "expected_subject": "Planificación y Gestión de Proyectos Informáticos",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "La asignatura (2060040) es obligatoria de 4.º con nombre largo. La formulación coloquial 'cómo funciona' hace que el retrieval vectorial deba encontrar la sección de metodología/evaluación. El QueryPreprocessor debe identificar el código a partir del nombre.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r16",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cuántas horas tiene cada bloque temático de Análisis y Diseño de Datos y Algoritmos y cuáles son los temas más importantes?",
+    "expected_source_pattern": ".*2060010.*",
+    "expected_keywords": [
+      "bloque",
+      "horas",
+      "tema",
+      "algoritmo",
+      "dato"
+    ],
+    "expected_subject": "Análisis y Diseño de Datos y Algoritmos",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Pregunta que combina la estructura temporal (horas por bloque) con los contenidos. ADDA es anual con 12 créditos y múltiples grupos; los PDFs Proyecto incluyen distribución horaria detallada. Requiere recuperar chunks de la sección de planificación temporal.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r17",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué metodologías de desarrollo de software se enseñan en Introducción a la Ingeniería del Software y los Sistemas de Información I?",
+    "expected_source_pattern": ".*2060054.*",
+    "expected_keywords": [
+      "metodología",
+      "software",
+      "desarrollo",
+      "ágil",
+      "proceso"
+    ],
+    "expected_subject": "Introducción a la IS y SI I",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "IS I (2060054) tiene nombre largo y similar a IS II (2060055). El QueryPreprocessor debe distinguir entre los dos. La pregunta sobre metodologías exige recuperar chunks de la sección de contenidos o metodología docente.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r18",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cómo se distribuyen los porcentajes de evaluación en Criptografía?",
+    "expected_source_pattern": ".*2060046.*",
+    "expected_keywords": [
+      "porcentaje",
+      "evaluación",
+      "examen",
+      "práctica",
+      "nota"
+    ],
+    "expected_subject": "Criptografía",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Evaluación de optativa de 4.º con nombre específico. Solo tiene 1 Proyecto (1 grupo). La dificultad está en que los porcentajes de evaluación pueden estar en un chunk con tabla o lista que el sistema debe parsear correctamente.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r19",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué conocimientos previos se recomiendan para cursar Acceso Inteligente a la Información?",
+    "expected_source_pattern": ".*2060032.*",
+    "expected_keywords": [
+      "prerrequisito",
+      "conocimiento",
+      "previo",
+      "recomendado",
+      "requerido"
+    ],
+    "expected_subject": "Acceso Inteligente a la Información",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Prerrequisitos de optativa de 4.º del cluster IA/SI. La asignatura tiene solapamiento semántico con el cluster IA. La pregunta explícita sobre 'conocimientos previos' puede no encontrar coincidencia textual exacta; requiere recuperación semántica.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r20",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué herramientas y tecnologías se usan en las prácticas de Computación Móvil?",
+    "expected_source_pattern": ".*2060045.*",
+    "expected_keywords": [
+      "herramienta",
+      "tecnología",
+      "práctica",
+      "móvil"
+    ],
+    "expected_subject": "Computación Móvil",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta sobre herramientas en optativa de 4.º con 1 solo grupo. La información sobre herramientas específicas suele estar en la sección de actividades prácticas del Proyecto docente. Requiere recuperar chunks específicos de esa sección.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r21",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "En Sistemas Inteligentes, ¿qué métodos de optimización se estudian y qué peso tienen en la evaluación continua?",
+    "expected_source_pattern": ".*2060029.*",
+    "expected_keywords": [
+      "optimización",
+      "evaluación",
+      "método",
+      "continua",
+      "inteligente"
+    ],
+    "expected_subject": "Sistemas Inteligentes",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta hard que requiere localizar información de optimización (en los contenidos) Y evaluación continua (en criterios de evaluación) en una optativa del cluster IA. Sin QueryPreprocessor, el retrieval mezclaría chunks de Sistemas Inteligentes con IA y Ampliación IA. La síntesis debe cruzar dos secciones diferentes del documento.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r22",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué relación tienen los contenidos de Inteligencia Empresarial con los de Gestión de Sistemas de Información?",
+    "expected_source_pattern": ".*2060049.*|.*2060019.*",
+    "expected_keywords": [
+      "inteligencia",
+      "gestión",
+      "información",
+      "datos",
+      "empresarial"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta comparativa cross-subject entre dos asignaturas del cluster SI/Gestión. Requiere recuperar chunks de 2060049 Y 2060019 simultáneamente. El reranker cross-encoder debe puntuar bien chunks de ambas asignaturas. La síntesis LLM debe integrar información de dos fuentes documentales distintas.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r23",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "Describe la estructura de evaluación de Modelado y Análisis de Requisitos en Sistemas de Información, incluyendo el procedimiento de recuperación",
+    "expected_source_pattern": ".*2060050.*",
+    "expected_keywords": [
+      "evaluación",
+      "recuperación",
+      "requisito",
+      "criterio",
+      "nota"
+    ],
+    "expected_subject": "Modelado y Análisis de Requisitos en SI",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta hard sobre optativa de 4.º con nombre muy largo. La información de 'procedimiento de recuperación' de evaluación puede estar en un chunk separado o ausente si la asignatura no tiene convocatoria especial. Valida robustez del sistema ante preguntas de detalle administrativo.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r24",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Qué técnicas de aprendizaje automático avanzadas cubre Ampliación de Inteligencia Artificial y cuánto pesa la parte práctica?",
+    "expected_source_pattern": ".*2060025.*",
+    "expected_keywords": [
+      "aprendizaje",
+      "automático",
+      "técnica",
+      "práctica",
+      "evaluación"
+    ],
+    "expected_subject": "Ampliación de Inteligencia Artificial",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Optativa de 4.º del cluster IA con nombre que incluye 'Inteligencia Artificial'. Sin QueryPreprocessor, el retrieval recuperará masivamente chunks de IA (2060021) en lugar de Ampliación IA (2060025). El metafiltro es crítico. La pregunta además combina dos secciones (contenidos + evaluación).",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "r25",
+    "partition": "well_formed",
+    "type": "rag",
+    "query": "¿Cómo aborda Procesadores de Lenguajes la generación de código objeto y qué porcentaje del examen representa ese bloque?",
+    "expected_source_pattern": ".*2060022.*",
+    "expected_keywords": [
+      "generación",
+      "código",
+      "examen",
+      "porcentaje",
+      "compilador"
+    ],
+    "expected_subject": "Procesadores de Lenguajes",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta muy específica sobre un sub-bloque de contenidos y su peso en el examen. Requiere localizar un chunk con distribución de contenidos dentro de los PDFs de Procesadores de Lenguajes (1 grupo). La especificidad puede provocar que CRAG grade como IRRELEVANT chunks que solo hablan de 'compilación' genérica, activando reescritura.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "s01",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas optativas hay en el plan de estudios?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "37",
+      "optativa"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "COUNT simple con filtro de tipo. Respuesta verificada: 37. El router debe clasificarla como STRUCTURED. Valida que el agente SQL genera SELECT COUNT(*) con TAS_CODALF='O'.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s02",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántos departamentos distintos hay en el grado?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "9",
+      "departamento"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "COUNT DISTINCT sobre DEP_NOMID2. Respuesta verificada: 9. Valida que el agente SQL usa DISTINCT correctamente.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s03",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Qué asignaturas tienen 12 créditos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "Fundamentos",
+      "Análisis",
+      "TFG"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "SELECT con filtro de créditos. Respuesta verificada: FP (2060001), ADDA (2060010) y TFG (2060053). Valida el filtro numérico sobre campo TEXT.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s04",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántos grupos tiene Fundamentos de Programación?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "9",
+      "grupo"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "COUNT DISTINCT de GAC_ID con join a ASG_CPSGACPRF_1 para el código 2060001. Respuesta verificada: 9 grupos. Valida el join correcto entre asignatura y grupos.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s05",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas hay en cada curso del grado?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "curso",
+      "9",
+      "13",
+      "22"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "GROUP BY CUR_NUMCUR. Requiere filtrar asignaturas de movilidad (2060900-2060903). Respuesta: curso 1=9, 2=9, 3=13, 4=22. Valida GROUP BY y filtrado de filas con CUR_NUMCUR IS NOT NULL.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s06",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Qué departamento tiene más asignaturas en el grado?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "Lenguajes",
+      "Sistemas",
+      "17"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "GROUP BY DEP_NOMID2 + ORDER BY COUNT DESC + LIMIT 1. Respuesta: Lenguajes y Sistemas Informáticos con 17 asignaturas. Valida la generación de la consulta de agregación con ORDER BY DESC.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s07",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas son anuales y cuántas cuatrimestrales?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "anual",
+      "cuatrimestral",
+      "7",
+      "50"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "GROUP BY DUR_CODALF o dos COUNT separados. Respuesta verificada: 7 anuales, 50 cuatrimestrales. Valida que el agente conoce el campo de duración y sus valores ('A', 'C1', 'C2').",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s08",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántos profesores distintos imparten Estadística?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "10",
+      "profesor"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "COUNT DISTINCT de PRS_DNIPRS en ASG_CPSGACPRF_1 para la asignatura Estadística (2060007). Respuesta verificada: 10. Requiere que el agente haga el join correcto entre nombre y código de asignatura.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s09",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas obligatorias hay en el plan, sin contar las troncales?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "9",
+      "obligatoria"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Distingue entre obligatoria (TAS_CODALF='B') y troncal (TAS_CODALF='T'), requiriendo que el agente entienda la distinción de tipos en el esquema. Respuesta verificada: 9 obligatorias.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s10",
+    "partition": "well_formed",
+    "type": "sql",
+    "query": "¿Cuántos créditos suman en total las asignaturas de primer curso?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "60",
+      "crédito"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "SUM de créditos con filtro CUR_NUMCUR='1'. Respuesta verificada: 60. El agente debe usar CAST(CREDITOS as REAL) porque el campo es TEXT en SQLite.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h01",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Cuántos créditos tiene Inteligencia Artificial y qué temas cubre?",
+    "expected_source_pattern": ".*2060021.*",
+    "expected_keywords": [
+      "6",
+      "crédito",
+      "tema",
+      "aprendizaje",
+      "búsqueda"
+    ],
+    "expected_subject": "Inteligencia Artificial",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Pregunta híbrida canónica: los créditos están en la BD (SQL: 6) y los temas en los PDFs (RAG). El router debe clasificarla como HYBRID. Valida que el sistema combina respuestas de ambas fuentes en la síntesis.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "h02",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Qué metodología usa Fundamentos de Programación y cuántos grupos tiene?",
+    "expected_source_pattern": ".*2060001.*",
+    "expected_keywords": [
+      "metodología",
+      "grupo",
+      "9",
+      "práctica"
+    ],
+    "expected_subject": "Fundamentos de Programación",
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Metodología (RAG: PDFs) + número de grupos (SQL: 9). Valida que la síntesis hybrid integra datos numéricos de la BD con información cualitativa de los PDFs de FP.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "h03",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Cuántas asignaturas hay en el departamento de Lenguajes y Sistemas Informáticos y cuáles son sus principales objetivos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "17",
+      "Lenguajes",
+      "objetivo"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "easy",
+    "rationale": "Cuenta de asignaturas de LSI (SQL: 17) + objetivos cualitativos de esas asignaturas (RAG). Valida routing hybrid + síntesis multi-documento.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h04",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Cuántos créditos tienen las asignaturas de IA del grado y qué competencias trabajan?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "crédito",
+      "6",
+      "competencia",
+      "inteligencia"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta sobre el cluster IA completo: créditos de todas (SQL: todas 6 créditos) + competencias de cada una (RAG). Requiere que la parte RAG recupere documentos de varias asignaturas del cluster.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h05",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Cuántos grupos tiene Estadística y cómo evalúan a los estudiantes?",
+    "expected_source_pattern": ".*2060007.*",
+    "expected_keywords": [
+      "6",
+      "grupo",
+      "evaluación",
+      "examen"
+    ],
+    "expected_subject": "Estadística",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Número de grupos de Estadística (SQL: 6) + metodología de evaluación (RAG). Valida que el agente SQL hace el join correcto y que la parte RAG recupera la sección de evaluación.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "h06",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Qué asignaturas imparte el departamento de Matemática Aplicada I y qué metodologías de evaluación utilizan?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "Matemática",
+      "Aplicada",
+      "evaluación",
+      "metodología"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Lista de asignaturas de Mat. Ap. I (SQL: 10) + metodologías de cada una (RAG). El sistema debe hacer SQL sobre DEP_NOMID2 y luego RAG sobre los documentos de esas asignaturas. Valida la integración del resultado SQL como contexto para la parte RAG.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h07",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿Cuántos profesores distintos imparten Arquitectura de Computadores y qué competencias desarrolla la asignatura?",
+    "expected_source_pattern": ".*2060015.*",
+    "expected_keywords": [
+      "8",
+      "profesor",
+      "competencia",
+      "arquitectura"
+    ],
+    "expected_subject": "Arquitectura de Computadores",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Número de profesores (SQL: 8) + competencias (RAG). La parte SQL requiere join con COUNT DISTINCT. La parte RAG debe filtrar a 2060015 en un cluster donde 'arquitectura' también aparece en 2060016 y 2060026.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": true
+    }
+  },
+  {
+    "id": "h08",
+    "partition": "well_formed",
+    "type": "hybrid",
+    "query": "¿En qué se diferencian los contenidos de Redes de Computadores y Arquitectura de Redes, y cuántos grupos tiene cada una?",
+    "expected_source_pattern": ".*206001[46].*",
+    "expected_keywords": [
+      "Redes",
+      "Arquitectura",
+      "grupo",
+      "contenido"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta comparativa hybrid cross-subject entre 2060014 y 2060016. La parte RAG debe recuperar chunks de ambas asignaturas; la síntesis debe construir una comparación coherente. Valida que HYBRID maneja correctamente múltiples asignaturas.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n01",
+    "partition": "well_formed",
+    "type": "negative",
+    "query": "¿Cuál es el horario de clases de Fundamentos de Programación este cuatrimestre?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Horario de clases. La BD contiene solo URLs al horario pero no el horario en sí. Los PDFs tampoco contienen horarios concretos. El sistema debe abstenerse. Valida la detección de preguntas sin respuesta en el corpus.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n02",
+    "partition": "well_formed",
+    "type": "negative",
+    "query": "¿En qué aula se imparte Estadística?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Asignación de aulas. Información que no está en la BD ni en los PDFs. El sistema debe abstenerse.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n03",
+    "partition": "well_formed",
+    "type": "negative",
+    "query": "¿Cuál es el email del coordinador de Sistemas Operativos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Emails de profesores. La BD contiene DNIs y usuarios (UVUS) pero no emails. El sistema debe abstenerse.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n04",
+    "partition": "well_formed",
+    "type": "negative",
+    "query": "¿A qué hora empieza Redes de Computadores los lunes?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Hora concreta de inicio de clase. Información no disponible en corpus. El sistema debe reconocer la pregunta como fuera del alcance y abstenerse.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n05",
+    "partition": "well_formed",
+    "type": "negative",
+    "query": "¿Cuándo es el examen parcial de Inteligencia Artificial en enero?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Fecha concreta de examen. La BD tiene URL_CALENDARIO pero no las fechas en sí. Los PDFs mencionan parciales pero no sus fechas concretas. Valida abstención ante información de calendario.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r26",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Cómo aprendo a hacer búsquedas inteligentes sobre bases de datos grandes?",
+    "expected_source_pattern": ".*2060032.*",
+    "expected_keywords": [
+      "búsqueda",
+      "información",
+      "inteligente",
+      "dato"
+    ],
+    "expected_subject": "Acceso Inteligente a la Información",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Query adversarial sin nombre de asignatura. La formulación activará retrieval de chunks de Acceso Inteligente (2060032), IA (2060021), Gestión SI (2060019) y ADDA (2060010) simultáneamente. Sin QueryPreprocessor el reranker debe elegir entre candidatos de 4 asignaturas. Valida si el cross-encoder discrimina correctamente.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r27",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Cómo se evalúa la de redes?",
+    "expected_source_pattern": ".*2060014.*",
+    "expected_keywords": [
+      "evaluación",
+      "red",
+      "examen"
+    ],
+    "expected_subject": "Redes de Computadores",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Query coloquial extremadamente corta y ambigua. 'La de redes' solapa Redes de Computadores (2060014) con Arquitectura de Redes (2060016). Sin nombre completo el QueryPreprocessor no puede filtrar. El reranker debe decidir entre los dos candidatos. La asignatura más probable es 2060014 (obligatoria, más grupos).",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r28",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Qué diferencia hay entre las dos asignaturas de matemáticas discretas del grado?",
+    "expected_source_pattern": ".*206000[53].*|.*2060013.*",
+    "expected_keywords": [
+      "matemática",
+      "discreta",
+      "diferencia",
+      "primero",
+      "segundo"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Consulta comparativa explícita entre IMD (2060005, 1.º) y MD (2060013, 2.º). Las dos asignaturas tienen nombres casi idénticos. El retrieval recuperará chunks de ambas; la síntesis debe construir una comparación. Valida si el sistema maneja dos asignaturas solapadas.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r29",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Cómo aprueban la de sistemas?",
+    "expected_source_pattern": ".*2060017.*",
+    "expected_keywords": [
+      "evaluación",
+      "sistema",
+      "examen",
+      "nota"
+    ],
+    "expected_subject": "Sistemas Operativos",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Máxima ambigüedad en el corpus. 'La de sistemas' activa: Sistemas Operativos (2060017), Sistemas Inteligentes (2060029), Sistemas de Información Empresariales (2060028), Sistemas Orientados a Servicios (2060030), Administración SI (2060033), Infraestructura SI (2060035). Valida si el reranker puede elegir la asignatura más probable (2060017, obligatoria) sin metafiltro.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r30",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Qué contiene el bloque de aprendizaje automático?",
+    "expected_source_pattern": ".*2060021.*|.*2060025.*",
+    "expected_keywords": [
+      "aprendizaje",
+      "automático",
+      "bloque",
+      "redes neuronales"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Sin asignatura mencionada. 'Aprendizaje automático' aparece en IA (2060021), Ampliación IA (2060025), Sistemas Inteligentes (2060029) y Soft Computing (2060044). Sin metafiltro, el reranker debe seleccionar los chunks más relevantes del cluster IA. Valida la capacidad de síntesis cuando el corpus es genuinamente ambiguo.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r31",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "La asignatura de compiladores, ¿tiene examen teórico o solo prácticas?",
+    "expected_source_pattern": ".*2060022.*",
+    "expected_keywords": [
+      "examen",
+      "práctica",
+      "compilador",
+      "teórico"
+    ],
+    "expected_subject": "Procesadores de Lenguajes",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Referencia indirecta a Procesadores de Lenguajes (2060022) como 'la asignatura de compiladores'. El término 'compiladores' no es el nombre oficial. El QueryPreprocessor no detectará el código; el retrieval vectorial debe encontrar los chunks correctos por similitud semántica entre 'compiladores' y 'procesadores de lenguajes'.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r32",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿En qué se diferencia la asignatura de arquitectura del primer cuatrimestre de segundo de la del segundo cuatrimestre?",
+    "expected_source_pattern": ".*206001[45].*",
+    "expected_keywords": [
+      "arquitectura",
+      "diferencia",
+      "redes",
+      "computadores"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Referencia perifrástica a dos asignaturas por posición en el plan: 'primer cuatrimestre de segundo' podría referirse a Redes de Computadores (2060014, C1) y 'segundo cuatrimestre' a Arquitectura de Computadores (2060015, C2). La formulación es engañosa y el retrieval también recuperará Arquitectura de Redes (2060016). CRAG y el reranker son críticos.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r33",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿Qué cubre la optativa de IA avanzada del segundo semestre de tercero?",
+    "expected_source_pattern": ".*2060025.*",
+    "expected_keywords": [
+      "inteligencia",
+      "avanzada",
+      "contenido",
+      "tema"
+    ],
+    "expected_subject": "Ampliación de Inteligencia Artificial",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "La 'optativa de IA avanzada del segundo semestre de tercero' es Ampliación de Inteligencia Artificial (2060025, C2, 3.º). La formulación no usa el nombre oficial. El retrieval vectorial recuperará masivamente chunks de IA (2060021). Valida que el sistema puede distinguir Ampliación IA de IA base usando contexto semántico.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r34",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "evaluacion de la asignatura de baases de daatos",
+    "expected_source_pattern": ".*2060019.*",
+    "expected_keywords": [
+      "evaluación",
+      "datos",
+      "información",
+      "criterio"
+    ],
+    "expected_subject": "Gestión de Sistemas de Información",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Formulación con dos typos intencionales ('baases', 'daatos') y referencia vaga ('bases de datos'). Ninguna asignatura tiene ese nombre exacto; la más próxima es Gestión de Sistemas de Información (2060019). BM25 fallará con los typos; el retrieval vectorial debe compensar. Valida la robustez ante errores ortográficos.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "r35",
+    "partition": "adversarial",
+    "type": "rag",
+    "query": "¿En qué se parece y en qué difiere la estadística de primero de la estadística computacional de cuarto?",
+    "expected_source_pattern": ".*2060007.*|.*2060047.*",
+    "expected_keywords": [
+      "estadística",
+      "diferencia",
+      "computacional",
+      "primero",
+      "cuarto"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Comparativa entre Estadística (2060007, 1.º) y Estadística Computacional (2060047, 4.º). Ambas están en el mismo departamento. El retrieval recuperará chunks de las dos; la síntesis debe construir una comparación coherente entre asignaturas del mismo dominio pero diferente nivel.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s11",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Cuántos profesores en total dan clase en las asignaturas de inteligencia artificial?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "profesor",
+      "inteligencia",
+      "artificial"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Formulación coloquial ('dan clase') que requiere join entre ASG_ASIGNATURA_1 y ASG_CPSGACPRF_1 con filtro por departamento 'Ciencias de la Computación e Int. Artificial' o lista de códigos del cluster IA. Valida que el agente SQL puede interpretar 'asignaturas de IA' como un filtro de departamento o nombre.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s12",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Hay algún profesor que imparta más de una asignatura distinta?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "profesor",
+      "asignatura",
+      "varios"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Requiere GROUP BY PRS_DNIPRS en ASG_CPSGACPRF_1 con HAVING COUNT(DISTINCT ASS_CODNUM) > 1. Consulta de agrupación avanzada que valida la generación de cláusulas HAVING con subconsulta de conteo.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s13",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas anuales hay en cada curso?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "anual",
+      "curso"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "GROUP BY CUR_NUMCUR con filtro DUR_CODALF='A'. Requiere que el agente entienda 'duración anual' y lo mapee al campo correcto. La respuesta tendrá valores bajos (0 o 1 por curso). Valida GROUP BY con filtro combinado.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s14",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas optativas hay entre tercero y cuarto curso juntos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "optativa",
+      "tercer",
+      "cuart"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Filtro compuesto: TAS_CODALF='O' AND CUR_NUMCUR IN ('3','4'). Valida que el agente combina correctamente dos condiciones de filtro en un WHERE con IN.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s15",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Existe alguna asignatura sin departamento asignado en la base de datos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "departamento",
+      "asignatura"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Requiere detectar NULL en DEP_NOMID2. La respuesta esperada son las asignaturas de movilidad (2060900-2060903) con DEP_NOMID2=NULL. Valida que el agente puede generar consultas con IS NULL.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s16",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Cuántos créditos totales suman las asignaturas obligatorias y troncales juntas?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "crédito",
+      "obligatoria",
+      "troncal"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "SUM con filtro multi-valor: TAS_CODALF IN ('B','T'). El agente debe interpretar 'obligatorias y troncales juntas' como IN y no como dos consultas separadas. Valida el manejo de operadores lógicos en condiciones complejas.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s17",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Qué porcentaje del total de créditos del grado corresponde a optativas?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "porcentaje",
+      "optativa",
+      "crédito"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Requiere dos SUM y una división: SUM créditos optativas / SUM total * 100. El agente debe generar una consulta con subconsultas o expresión aritmética. Valida la capacidad del NL2SQL para generar cálculos proporcionales.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "s18",
+    "partition": "adversarial",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas del primer semestre tiene cada departamento?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "departamento",
+      "semestre",
+      "asignatura"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "GROUP BY DEP_NOMID2 con filtro DUR_CODALF='C1'. 'Primer semestre' debe mapearse a 'C1'. Valida que el agente infiere el valor del campo desde la descripción semántica del semestre.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h09",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "Lo de sistemas informáticos del tercer año, ¿cuántos créditos tiene y qué temas da?",
+    "expected_source_pattern": ".*2060018.*|.*2060019.*",
+    "expected_keywords": [
+      "crédito",
+      "sistema",
+      "tema"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Referencia perifrástica a asignatura(s) de 'sistemas informáticos de 3.º'. Candidatos: Gestión SI (2060019) y Configuración-Implementación-Mantenimiento SI (2060018), ambas de 3.º C1. La recuperación RAG inicial fallará porque mezcla ambas con Administración SI (2060033) y otras. CRAG debe reescribir. Valida el mecanismo de reescritura en hybrid.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h10",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "La asignatura de proyectos del grado, ¿cuántos créditos tiene y cómo evalúan?",
+    "expected_source_pattern": ".*2060040.*",
+    "expected_keywords": [
+      "proyecto",
+      "crédito",
+      "evaluación"
+    ],
+    "expected_subject": "Planificación y Gestión de Proyectos Informáticos",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "'La asignatura de proyectos' podría referirse a Planificación y Gestión de Proyectos Informáticos (2060040) o al TFG (2060053). La recuperación inicial será ambigua. CRAG debe reescribir hacia la asignatura docente (no el TFG) basándose en el contexto 'grado'. Valida la discriminación entre proyectos académicos y TFG.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h11",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "La de seguridad de internet, ¿cuántos profes la dan y qué temas hay?",
+    "expected_source_pattern": ".*2060042.*",
+    "expected_keywords": [
+      "seguridad",
+      "internet",
+      "profesor",
+      "tema"
+    ],
+    "expected_subject": "Seguridad en Sistemas Informáticos y en Internet",
+    "expected_abstention": false,
+    "difficulty": "medium",
+    "rationale": "Nombre truncado e informal de Seguridad en Sistemas Informáticos y en Internet (2060042). 'La de seguridad de internet' omite 'sistemas informáticos'. El retrieval SQL para 'cuántos profes' necesita identificar el código 2060042 desde el nombre parcial. La parte RAG debe recuperar el temario de esa asignatura específica.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h12",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "¿Qué asignaturas del grado tratan procesamiento de señal o imagen y cuántos créditos tienen?",
+    "expected_source_pattern": ".*206004[13].*",
+    "expected_keywords": [
+      "señal",
+      "imagen",
+      "procesamiento",
+      "crédito"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Query exploratoria sobre un dominio sin asignatura concreta. Candidatos: Procesamiento de Imágenes Digitales (2060041), Teledetección (2060043). La parte SQL debe listar los códigos encontrados por RAG. CRAG activará reescritura si los primeros chunks son irrelevantes. Valida el pipeline hybrid con query exploratoria.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h13",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "La materia de software del primer cuatrimestre de segundo, ¿cómo se evalúa y cuántos grupos tiene?",
+    "expected_source_pattern": ".*2060054.*",
+    "expected_keywords": [
+      "software",
+      "evaluación",
+      "grupo"
+    ],
+    "expected_subject": "Introducción a la IS y SI I",
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "'La materia de software del cuatrimestre 1 de segundo' = IS I (2060054). La formulación perifrástica no usa el nombre oficial. El retrieval RAG inicial puede mezclar con IS II (2060055) y otras de LSI. CRAG debe reescribir hacia la asignatura específica. La parte SQL necesita identificar el código correcto.",
+    "expected_behaviors": {
+      "routing": "hybrid",
+      "crag_should_rewrite": true,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "h14",
+    "partition": "adversarial",
+    "type": "hybrid",
+    "query": "Si cada grupo tiene unos 40 alumnos, ¿cuántos estudiantes puede absorber el grado? ¿Y qué asignaturas tienen más grupos?",
+    "expected_source_pattern": null,
+    "expected_keywords": [
+      "grupo",
+      "alumno",
+      "capacidad",
+      "asignatura"
+    ],
+    "expected_subject": null,
+    "expected_abstention": false,
+    "difficulty": "hard",
+    "rationale": "Consulta matemática con estimación implícita. Requiere SQL para obtener el total de grupos y multiplicar por 40 (hipótesis del usuario). La segunda parte requiere ORDER BY COUNT(grupos) DESC. El agente SQL debe interpretar la hipótesis como multiplicador. Valida el reasoning aritmético en el agente NL2SQL.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n06",
+    "partition": "adversarial",
+    "type": "negative",
+    "query": "¿Cuál es el sistema de evaluación de Programación Funcional?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "hard",
+    "rationale": "Asignatura inventada con nombre plausible. 'Programación Funcional' NO existe en el catálogo; la más próxima es Programación Declarativa (2060023). El retrieval recuperará chunks de 2060023. El sistema NO debe dar la evaluación de esa asignatura sino abstenerse indicando que Programación Funcional no está en el corpus. Valida la tasa de false positives.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n07",
+    "partition": "adversarial",
+    "type": "negative",
+    "query": "¿Qué temas tiene Visión por Computador?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "hard",
+    "rationale": "Asignatura inventada. 'Visión por Computador' NO existe; la asignatura similar es Procesamiento de Imágenes Digitales (2060041). El retrieval recuperará chunks de esa asignatura. El sistema debe verificar que 'Visión por Computador' no es un nombre oficial y abstenerse, no dar la respuesta de 2060041.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n08",
+    "partition": "adversarial",
+    "type": "negative",
+    "query": "¿Qué asignaturas imparte la profesora González?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "medium",
+    "rationale": "Profesora inexistente. El apellido 'González' NO aparece en ASG_PERMISO_ROL_USUARIO. La query SQL devolverá 0 resultados. El sistema debe indicar que no hay datos de esa profesora, no atribuirle asignaturas de profesoras con apellidos parecidos.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "n09",
+    "partition": "adversarial",
+    "type": "negative",
+    "query": "¿Cuántos créditos tiene Seguridad Avanzada?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "medium",
+    "rationale": "Asignatura inventada. 'Seguridad Avanzada' NO existe; existe Seguridad en Sistemas Informáticos y en Internet (2060042). La query SQL devolverá NULL o 0 resultados. El sistema debe abstenerse y no dar los créditos de 2060042 como si fuera la asignatura pedida.",
+    "expected_behaviors": {
+      "routing": "structured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "a01",
+    "partition": "adversarial",
+    "type": "out_of_domain",
+    "query": "¿Cuál es la capital de Francia?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Control puro de abstención: pregunta de geografía fuera del dominio universitario. El sistema debe abstenerse inmediatamente. Si el LLM responde desde sus pesos sin grounding, indica fallo de contención.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "a02",
+    "partition": "adversarial",
+    "type": "out_of_domain",
+    "query": "¿Cómo se prepara una buena paella valenciana?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Pregunta culinaria fuera de dominio. Sin ningún token que se parezca al corpus universitario, el retrieval devolverá chunks irrelevantes con puntuación baja. CRAG debería marcar todo como IRRELEVANT. El sistema debe abstenerse.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "a03",
+    "partition": "adversarial",
+    "type": "out_of_domain",
+    "query": "¿Quién ganó el Mundial de Fútbol de 2022?",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Pregunta de actualidad deportiva fuera de dominio. Entidades nombradas (Mundial, Fútbol, 2022) sin relación con el corpus. Valida la robustez del mecanismo de abstención ante preguntas con nombres propios ajenos al dominio.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  },
+  {
+    "id": "a04",
+    "partition": "adversarial",
+    "type": "out_of_domain",
+    "query": "Recomiéndame películas de ciencia ficción buenas",
+    "expected_source_pattern": null,
+    "expected_keywords": [],
+    "expected_subject": null,
+    "expected_abstention": true,
+    "difficulty": "easy",
+    "rationale": "Petición de recomendación de entretenimiento. El token 'ciencia' podría tener similitud semántica superficial con 'ciencias de la computación', pero el contexto completo es claramente fuera de dominio. Valida que la similitud léxica espuria no contamina la decisión de abstención.",
+    "expected_behaviors": {
+      "routing": "unstructured",
+      "crag_should_rewrite": false,
+      "requires_metadata_filter": false
+    }
+  }
+]

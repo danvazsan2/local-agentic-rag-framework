@@ -1,0 +1,77 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+ui/node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+ui/coverage/
+
+# next.js
+ui/.next/
+ui/out/
+/.next/
+
+# production
+ui/build/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.VSCodeCounter
+tool-schemas
+custom-prompts
+
+sw.js
+sw.js.map
+workbox-*.js
+workbox-*.js.map
+
+# RAG models
+ui/lib/custom-rag/models/
+
+# Bases de datos (todo lo terminado en .db)
+*.db
+
+# Claude Code and IDE config (personal/local tool settings)
+CLAUDE.md
+.claude/
+.vscode/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.python-version
+*.egg-info/
+dist/
+.eggs/
+
+# Jupyter notebooks
+*.ipynb
+
+# RAG runtime data (generated at runtime, not source)
+rag/sessions/
+rag/vector_store/
+vector_store/
+rag/results/

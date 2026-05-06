@@ -1,0 +1,102 @@
+# ============================================================================
+# RAG Framework - Configuración SOLO RAG No Estructurado (Proyectos Docentes)
+# ============================================================================
+# Igual que proyectos_docentes.yaml pero con SQL DESHABILITADO.
+# Se usa en la fase de demo donde mostramos únicamente las capacidades del RAG
+# sobre los PDFs (programas y proyectos docentes del Grado en Inf. Informática).
+#
+# Para habilitarlo todo (modo híbrido), usa proyectos_docentes.yaml.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# LLM Configuration
+# ----------------------------------------------------------------------------
+llm:
+  provider: ollama
+  model: qwen3:8b
+  base_url: "http://localhost:11434"
+  context_window: 8192
+  temperature: 0.0
+  top_p: 0.9
+  top_k: 40
+  max_tokens: 512
+  repeat_penalty: 1.1
+  stop_sequences:
+    - "\n\nPregunta:"
+    - "\n\nUsuario:"
+    - "\n\nContexto:"
+  request_timeout: 300.0
+  thinking: false
+
+# ----------------------------------------------------------------------------
+# Embedding Configuration
+# ----------------------------------------------------------------------------
+embedding:
+  provider: ollama
+  model: bge-m3:latest
+  base_url: "http://localhost:11434"
+
+# ----------------------------------------------------------------------------
+# Vector Store Configuration
+# ----------------------------------------------------------------------------
+vector_store:
+  provider: lancedb
+  persist_directory: "./vector_store"
+  collection_name: documents
+  lance_mode: overwrite
+
+# ----------------------------------------------------------------------------
+# Document Chunking Configuration
+# ----------------------------------------------------------------------------
+chunking:
+  chunk_size: 1536
+  chunk_overlap: 200
+  use_semantic_chunking: true
+  semantic_oversized_factor: 1.5
+
+# ----------------------------------------------------------------------------
+# Retrieval Configuration
+# ----------------------------------------------------------------------------
+retrieval:
+  use_hybrid_search: true
+  top_k: 10
+  alpha: 0.5
+  rrf_k: 80
+  reranker:
+    enabled: true
+    provider: huggingface
+    model: BAAI/bge-reranker-v2-m3
+    local_model_path: "./models/bge-reranker-v2-m3"
+    top_n: 5
+    device: auto
+
+# ----------------------------------------------------------------------------
+# Directory Configuration
+# ----------------------------------------------------------------------------
+directories:
+  documents_dir: "./documents"
+  vector_store_dir: "./vector_store"
+
+# ----------------------------------------------------------------------------
+# Prompt Template
+# ----------------------------------------------------------------------------
+prompt_template: default
+
+# ----------------------------------------------------------------------------
+# Debug Mode
+# ----------------------------------------------------------------------------
+debug: false
+
+# ----------------------------------------------------------------------------
+# Corrective RAG
+# ----------------------------------------------------------------------------
+corrective_rag:
+  enabled: false
+  relevance_threshold: 0.5
+  max_retries: 1
+
+# ----------------------------------------------------------------------------
+# SQL — DESHABILITADO (solo RAG no estructurado en esta configuración)
+# ----------------------------------------------------------------------------
+sql:
+  enabled: false

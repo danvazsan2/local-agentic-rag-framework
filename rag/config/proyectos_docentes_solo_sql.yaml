@@ -1,0 +1,332 @@
+# ============================================================================
+# RAG Framework - Configuración SOLO RAG Estructurado (Proyectos Docentes)
+# ============================================================================
+# Igual que proyectos_docentes.yaml pero con el router configurado para
+# enrutar SIEMPRE a la base de datos estructurada (SQL).
+# Se usa en la fase de demo donde mostramos únicamente las capacidades del RAG
+# sobre la BD de proyectos docentes del Grado en Ing. Informática.
+#
+# Para habilitarlo todo (modo híbrido), usa proyectos_docentes.yaml.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# LLM Configuration
+# ----------------------------------------------------------------------------
+llm:
+  provider: ollama
+  model: qwen3:8b
+  base_url: "http://localhost:11434"
+  context_window: 8192
+  temperature: 0.0
+  top_p: 0.9
+  top_k: 40
+  max_tokens: 1024
+  repeat_penalty: 1.1
+  stop_sequences:
+    - "\n\nPregunta:"
+    - "\n\nUsuario:"
+    - "\n\nContexto:"
+  request_timeout: 300.0
+  thinking: false
+
+# ----------------------------------------------------------------------------
+# Embedding Configuration
+# ----------------------------------------------------------------------------
+embedding:
+  provider: ollama
+  model: bge-m3:latest
+  base_url: "http://localhost:11434"
+
+# ----------------------------------------------------------------------------
+# Vector Store Configuration
+# ----------------------------------------------------------------------------
+vector_store:
+  provider: lancedb
+  persist_directory: "./vector_store"
+  collection_name: documents
+  lance_mode: overwrite
+
+# ----------------------------------------------------------------------------
+# Document Chunking Configuration
+# ----------------------------------------------------------------------------
+chunking:
+  chunk_size: 1536
+  chunk_overlap: 200
+  use_semantic_chunking: true
+  semantic_oversized_factor: 1.5
+
+# ----------------------------------------------------------------------------
+# Retrieval Configuration
+# ----------------------------------------------------------------------------
+retrieval:
+  use_hybrid_search: true
+  top_k: 15
+  alpha: 0.5
+  rrf_k: 80
+  reranker:
+    enabled: true
+    provider: huggingface
+    model: BAAI/bge-reranker-v2-m3
+    local_model_path: "./models/bge-reranker-v2-m3"
+    top_n: 7
+    device: auto
+
+# ----------------------------------------------------------------------------
+# Directory Configuration
+# ----------------------------------------------------------------------------
+directories:
+  documents_dir: "./documents"
+  vector_store_dir: "./vector_store"
+
+# ----------------------------------------------------------------------------
+# Prompt Template
+# ----------------------------------------------------------------------------
+prompt_template: default
+
+# ----------------------------------------------------------------------------
+# Debug Mode
+# ----------------------------------------------------------------------------
+debug: false
+
+# ----------------------------------------------------------------------------
+# Corrective RAG
+# ----------------------------------------------------------------------------
+corrective_rag:
+  enabled: false
+  relevance_threshold: 0.5
+  max_retries: 1
+
+# ============================================================================
+# CONFIGURACIÓN DE BASE DE DATOS SQL — Proyectos Docentes
+# ============================================================================
+sql:
+  enabled: true
+
+  connection:
+    db_type: sqlite
+    sqlite_path: "./data/proyectos_docentes.db"
+    pool_size: 5
+    query_timeout: 30.0
+
+  schema:
+    include_tables:
+      - "ASG_ASIGNATURA_1"
+      - "ASG_ACTIVIDAD_FOTO"
+      - "ASG_PROYECTOCABECERA_PRE_YII_1"
+      - "ASG_PROYECTOPROFESOR"
+      - "ASG_CPSGACPRF_1"
+      - "ASG_PROGRAMACABECERA_PRE_M_1"
+      - "ASG_BIBLIOGRAFIA"
+      - "ASG_CPSTRIBUNAL"
+      - "ASG_CARGO"
+
+    exclude_tables: []
+
+    include_sample_values: true
+    sample_values_limit: 3
+    include_relationships: false
+
+    table_descriptions:
+      ASG_ASIGNATURA_1: >
+        Catálogo oficial de asignaturas del Grado en Ingeniería Informática
+        (curso 2025-26). Es la tabla de referencia principal para names y
+        metadatos de asignaturas. Columnas clave: ASS_CODNUM (código único,
+        ej: '2060001'), NOMID2 (nombre completo en español), CUR_NUMCUR
+        (curso: '1', '2', '3', '4'), TAS_NOMID2 (tipo: 'TRONCAL / FORMACIÓN
+        BÁSICA', 'OBLIGATORIA', 'OPTATIVA', 'PRACTICAS EXTERNAS OPTATIVAS',
+        'PROYECTO FIN DE CARRERA / TRABAJO FIN DE GRADO / TRABAJO FIN DE
+        MÁSTER'), DUR_NOMID2 (duración: 'ANUAL' o 'CUATRIMESTRAL'),
+        CREDITOS (créditos ECTS como texto numérico), DEP_NOMID2
+        (departamento responsable), PLA_NOMID2 (nombre del grado; valor
+        único en esta tabla: 'Grado en Ingeniería Informática-Tecnologías
+        Informáticas'). Para buscar por nombre de asignatura, usar
+        LOWER(NOMID2) LIKE '%texto%'. IMPORTANTE: todos los registros
+        pertenecen a la misma titulación; NO añadir filtros por PLA_NOMID2
+        ni por NOMID2 buscando el nombre del grado salvo que el usuario
+        pida explícitamente filtrar por titulación.
+
+      ASG_ACTIVIDAD_FOTO: >
+        Desglose de actividades docentes por asignatura en el curso 2025-26.
+        Cada fila es un tipo de actividad de una asignatura. Columnas:
+        ASS_CODNUM (FK a ASG_ASIGNATURA_1), DESID2 (nombre de la actividad,
+        valores posibles: 'A Clases Teóricas', 'B Clases Teórico/ Prácticas',
+        'C Clases Prácticas en aula', 'E Prácticas de Laboratorio',
+        'G Prácticas de Informática', 'I Prácticas de Campo',
+        'J Prácticas Externas/Practicum', 'K Trabajos dirigidos académic.'),
+        CREDITOS, HORAS. Para filtrar por nombre de asignatura, hacer JOIN
+        con ASG_ASIGNATURA_1 por ASS_CODNUM.
+
+      ASG_PROYECTOCABECERA_PRE_YII_1: >
+        Grupos docentes (proyectos docentes) de cada asignatura para el
+        curso 2025-26. Cada fila representa un grupo identificado por el
+        par (ASS_CODNUM, GAC_ID). Columnas: ASS_CODNUM (FK a
+        ASG_ASIGNATURA_1), GAC_ID (identificador del grupo, ej: '0', '1',
+        '2', '3'), GAC_DESID (descripción completa del grupo, ej: 'Grupo 1
+        de Clases Teóricas de Fundamentos de Programación'), FLGPRINCIPAL
+        ('S' = grupo principal, 'N' = secundario), DUR_CODALF ('A'=Anual,
+        'C1'=1er cuatrimestre, 'C2'=2º cuatrimestre). IMPORTANTE: para
+        filtrar grupos por nombre de asignatura, hacer JOIN con
+        ASG_ASIGNATURA_1 por ASS_CODNUM y filtrar NOMID2. NUNCA filtrar
+        directamente por GAC_DESID para buscar el nombre de la asignatura.
+
+      ASG_PROYECTOPROFESOR: >
+        Profesores responsables del proyecto docente de cada grupo en el
+        curso 2025-26. Columnas: ASS_CODNUM (FK a ASG_ASIGNATURA_1),
+        GAC_ID (FK a ASG_PROYECTOCABECERA_PRE_YII_1), PRS_DNIPRS (DNI del
+        profesor). Para contar cuántos grupos imparte cada profesor en una
+        asignatura: JOIN con ASG_ASIGNATURA_1 por ASS_CODNUM, GROUP BY
+        PRS_DNIPRS, COUNT(DISTINCT GAC_ID). ATENCIÓN: la base de datos no
+        contiene el nombre del profesor, solo su DNI (PRS_DNIPRS).
+
+      ASG_CPSGACPRF_1: >
+        Asignación completa de profesores a grupos docentes para el curso
+        2025-26 (incluye todos los profesores, no solo los responsables del
+        proyecto). Con 429 filas es la tabla más completa para saber qué
+        profesor imparte cada grupo. Columnas: ASS_CODNUM (FK a
+        ASG_ASIGNATURA_1), GAC_ID (identificador del grupo), PRS_DNIPRS
+        (DNI del profesor), GAC_DESID2 (descripción del grupo), FLGPRINCIPAL
+        ('S' = profesor principal del grupo, 'N' = secundario). Para obtener
+        el profesor principal de cada grupo, filtrar FLGPRINCIPAL='S'. Para
+        filtrar por nombre de asignatura, hacer JOIN con ASG_ASIGNATURA_1
+        por ASS_CODNUM. NUNCA filtrar por GAC_DESID2 para buscar por nombre
+        de asignatura.
+
+      ASG_PROGRAMACABECERA_PRE_M_1: >
+        Historial de versiones del programa de cada asignatura. Útil para
+        ver la evolución histórica. Columnas: ASS_CODNUM, VERSION (número
+        de versión), ASS_NOMID2 (nombre de la asignatura), CUR_NUMCUR,
+        TAS_NOMID2, DUR_NOMID2, CREDITOS, ANY_ANYACAIMP (año de implantación).
+
+      ASG_BIBLIOGRAFIA: >
+        Bibliografía recomendada por asignatura y grupo docente. Columnas:
+        ASS_CODNUM (FK a ASG_ASIGNATURA_1), GAC_ID (grupo docente), TITULO,
+        AUTORES, PUBLICACION (editorial), EDICION, ISBN, TIPO ('E' =
+        bibliografía esencial/obligatoria, otros = complementaria), ORDEN
+        (orden de aparición). Para filtrar por nombre de asignatura, hacer
+        JOIN con ASG_ASIGNATURA_1 por ASS_CODNUM.
+
+      ASG_CPSTRIBUNAL: >
+        Composición del tribunal de evaluación (Comisión de Programas y
+        Seguimiento) de cada asignatura. Columnas: ASS_CODNUM (FK a
+        ASG_ASIGNATURA_1), ANY_ANYACA (año académico), COD_CARGO (FK a
+        ASG_CARGO, rol del miembro), PRS_DNIPRS (DNI del miembro del
+        tribunal). Unir con ASG_CARGO por COD_CARGO para obtener el nombre
+        del rol.
+
+      ASG_CARGO: >
+        Catálogo de roles/cargos en los tribunales de evaluación. Solo 6
+        filas. Columnas: COD_CARGO ('1'=Presidente, '2'=Vocal,
+        '3'=Secretario, '4'=Suplente 1, '5'=Suplente 2, '6'=Suplente 3),
+        NOMID2 (nombre del cargo).
+
+    column_descriptions:
+      ASG_ASIGNATURA_1:
+        ASS_CODNUM: "Código único numérico de la asignatura como TEXT (ej: '2060001' = Fundamentos de Programación)"
+        NOMID2: "Nombre completo de la asignatura en español. Usar LOWER(NOMID2) LIKE '%texto%' para búsquedas"
+        CUR_NUMCUR: "Curso: '1', '2', '3' o '4' (TEXT). Puede ser NULL para TFG y prácticas externas"
+        TAS_NOMID2: "Tipo: 'TRONCAL / FORMACIÓN BÁSICA', 'OBLIGATORIA', 'OPTATIVA', 'PRACTICAS EXTERNAS OPTATIVAS', 'PROYECTO FIN DE CARRERA / TRABAJO FIN DE GRADO / TRABAJO FIN DE MÁSTER'"
+        DUR_NOMID2: "Duración: 'ANUAL' (todo el año) o 'CUATRIMESTRAL'"
+        CREDITOS: "Créditos ECTS como TEXT numérico (ej: '12', '6'). Usar CAST(CREDITOS AS INTEGER) para cálculos"
+        DEP_NOMID2: "Nombre del departamento universitario responsable de la asignatura"
+        PRS_DNIPRS: "DNI del coordinador/responsable oficial de la asignatura"
+
+      ASG_ACTIVIDAD_FOTO:
+        ASS_CODNUM: "Código de la asignatura (FK → ASG_ASIGNATURA_1.ASS_CODNUM)"
+        ANY_ANYACA: "Año académico (ej: '2025-26')"
+        DESID2: "Tipo de actividad: 'A Clases Teóricas', 'B Clases Teórico/ Prácticas', 'C Clases Prácticas en aula', 'E Prácticas de Laboratorio', 'G Prácticas de Informática', 'I Prácticas de Campo', 'J Prácticas Externas/Practicum', 'K Trabajos dirigidos académic.'"
+        CREDITOS: "Créditos asignados a esta actividad (TEXT numérico)"
+        HORAS: "Horas totales de esta actividad (TEXT numérico)"
+
+      ASG_PROYECTOCABECERA_PRE_YII_1:
+        ASS_CODNUM: "Código de la asignatura (FK → ASG_ASIGNATURA_1.ASS_CODNUM)"
+        GAC_ID: "Identificador del grupo dentro de la asignatura (TEXT, ej: '0', '1', '2', '3', '1TI')"
+        GAC_DESID: "Descripción completa del grupo. NO usar para filtrar por nombre de asignatura"
+        FLGPRINCIPAL: "'S' = grupo principal, 'N' = grupo secundario/adicional"
+        DUR_CODALF: "Duración del grupo: 'A'=Anual, 'C1'=1er cuatrimestre, 'C2'=2º cuatrimestre"
+        VERSIONPRG: "Versión del programa docente asociado al grupo"
+
+      ASG_PROYECTOPROFESOR:
+        ASS_CODNUM: "Código de la asignatura (FK → ASG_ASIGNATURA_1.ASS_CODNUM)"
+        GAC_ID: "Identificador del grupo"
+        PRS_DNIPRS: "DNI del profesor responsable del proyecto docente de este grupo"
+
+      ASG_CPSGACPRF_1:
+        ASS_CODNUM: "Código de la asignatura"
+        GAC_ID: "Identificador del grupo"
+        PRS_DNIPRS: "DNI del profesor asignado al grupo"
+        GAC_DESID2: "Descripción del grupo. NO usar para filtrar por nombre de asignatura"
+        FLGPRINCIPAL: "'S' = profesor principal del grupo, 'N' = profesor secundario/compartido"
+
+      ASG_BIBLIOGRAFIA:
+        ASS_CODNUM: "Código de la asignatura"
+        GAC_ID: "Grupo docente al que pertenece la referencia"
+        TITULO: "Título completo del libro o recurso"
+        AUTORES: "Autores de la obra (texto libre)"
+        PUBLICACION: "Editorial o lugar de publicación"
+        TIPO: "'E' = bibliografía esencial/obligatoria; otros valores = complementaria"
+        ORDEN: "Orden de presentación dentro de la bibliografía del grupo"
+
+      ASG_CPSTRIBUNAL:
+        ASS_CODNUM: "Código de la asignatura"
+        ANY_ANYACA: "Año académico del tribunal"
+        COD_CARGO: "Rol del miembro en el tribunal (FK → ASG_CARGO.COD_CARGO)"
+        PRS_DNIPRS: "DNI del miembro del tribunal"
+
+      ASG_CARGO:
+        COD_CARGO: "Código del cargo: '1'=Presidente, '2'=Vocal, '3'=Secretario, '4'=Suplente 1, '5'=Suplente 2, '6'=Suplente 3"
+        NOMID2: "Nombre del cargo"
+
+  security:
+    allow_only_select: true
+    max_rows: 100
+    max_execution_time: 30.0
+
+  max_retries: 3
+
+  example_queries:
+    - question: "¿Cuántas asignaturas hay en total?"
+      sql: "SELECT COUNT(*) AS total_asignaturas FROM ASG_ASIGNATURA_1"
+
+    - question: "¿Qué asignaturas son de primer curso?"
+      sql: >
+        SELECT NOMID2, CREDITOS, TAS_NOMID2, DUR_NOMID2
+        FROM ASG_ASIGNATURA_1
+        WHERE CUR_NUMCUR = '1'
+        ORDER BY NOMID2
+
+    - question: "¿Cuántas asignaturas optativas hay?"
+      sql: >
+        SELECT COUNT(*) AS total_optativas
+        FROM ASG_ASIGNATURA_1
+        WHERE TAS_NOMID2 = 'OPTATIVA'
+
+    - question: "¿Qué asignaturas tienen 12 créditos ECTS?"
+      sql: >
+        SELECT NOMID2, CREDITOS, CUR_NUMCUR
+        FROM ASG_ASIGNATURA_1
+        WHERE CAST(CREDITOS AS INTEGER) = 12
+        ORDER BY CUR_NUMCUR
+
+    - question: "¿Cuántos grupos docentes tiene cada asignatura de primer curso?"
+      sql: >
+        SELECT a.NOMID2, COUNT(DISTINCT g.GAC_ID) AS num_grupos
+        FROM ASG_PROYECTOCABECERA_PRE_YII_1 g
+        JOIN ASG_ASIGNATURA_1 a ON g.ASS_CODNUM = a.ASS_CODNUM
+        WHERE a.CUR_NUMCUR = '1'
+        GROUP BY a.NOMID2
+        ORDER BY num_grupos DESC, a.NOMID2
+
+    - question: "¿Cuántos créditos tiene Fundamentos de Programación?"
+      sql: >
+        SELECT NOMID2, CREDITOS
+        FROM ASG_ASIGNATURA_1
+        WHERE LOWER(NOMID2) LIKE '%fundamentos%programaci%'
+
+# ============================================================================
+# ROUTER — En modo solo-SQL, el default_source es structured
+# ============================================================================
+router:
+  enabled: true
+  default_source: structured
+  use_llm_fallback: false
+  confidence_threshold: 0.5

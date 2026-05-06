@@ -1,0 +1,183 @@
+[
+  {
+    "id": "rag_01",
+    "type": "rag",
+    "query": "¿Qué bloques temáticos y lenguajes de programación se estudian en Fundamentos de Programación?",
+    "expected_keywords": ["Python", "Java", "control de flujo", "colecciones"],
+    "expected_source_pattern": ".*2060001.*",
+    "expected_subject": "Fundamentos de Programación"
+  },
+  {
+    "id": "rag_02",
+    "type": "rag",
+    "query": "¿Cuál es la metodología de evaluación de Inteligencia Artificial?",
+    "expected_keywords": ["evaluación por curso", "examen", "parcial"],
+    "expected_source_pattern": ".*2060021.*",
+    "expected_subject": "Inteligencia Artificial"
+  },
+  {
+    "id": "rag_03",
+    "type": "rag",
+    "query": "¿Cuáles son los objetivos principales de Estadística?",
+    "expected_keywords": ["estadístic", "resolver problemas", "interpretar"],
+    "expected_source_pattern": ".*2060007.*",
+    "expected_subject": "Estadística"
+  },
+  {
+    "id": "rag_04",
+    "type": "rag",
+    "query": "¿Qué competencias se trabajan en Ingeniería del Software?",
+    "expected_keywords": ["competencia", "software"],
+    "expected_source_pattern": ".*2060028.*",
+    "expected_subject": "Ingeniería del Software"
+  },
+  {
+    "id": "rag_05",
+    "type": "rag",
+    "query": "¿Cuál es el sistema de evaluación de Bases de Datos y Sistemas de Información?",
+    "expected_keywords": ["evaluación", "examen", "prácticas"],
+    "expected_source_pattern": ".*2060017.*",
+    "expected_subject": "Bases de Datos y Sistemas de Información"
+  },
+  {
+    "id": "rag_06",
+    "type": "rag",
+    "query": "¿Qué contenidos temáticos tiene Redes de Computadores?",
+    "expected_keywords": ["red", "protocolo", "TCP", "capa"],
+    "expected_source_pattern": ".*2060023.*",
+    "expected_subject": "Redes de Computadores"
+  },
+  {
+    "id": "rag_07",
+    "type": "rag",
+    "query": "¿Cuáles son los resultados de aprendizaje de Arquitectura de Computadores?",
+    "expected_keywords": ["aprendizaje", "computador"],
+    "expected_source_pattern": ".*2060014.*",
+    "expected_subject": "Arquitectura de Computadores"
+  },
+  {
+    "id": "rag_08",
+    "type": "rag",
+    "query": "¿Qué metodología docente se sigue en el grupo 1 de Fundamentos de Programación?",
+    "expected_keywords": ["metodología", "clase", "práctica"],
+    "expected_source_pattern": ".*Proyecto_2060001.*_1\\.pdf",
+    "expected_subject": "Fundamentos de Programación"
+  },
+  {
+    "id": "rag_09",
+    "type": "rag",
+    "query": "¿Cómo se evalúa Análisis y Diseño de Datos y Algoritmos?",
+    "expected_keywords": ["evaluación", "examen", "nota"],
+    "expected_source_pattern": ".*2060009.*",
+    "expected_subject": "Análisis y Diseño de Datos y Algoritmos"
+  },
+  {
+    "id": "rag_10",
+    "type": "rag",
+    "query": "¿Qué se estudia en Álgebra Lineal y Numérica?",
+    "expected_keywords": ["álgebra", "matricial", "numéric"],
+    "expected_source_pattern": ".*2060004.*",
+    "expected_subject": "Álgebra Lineal y Numérica"
+  },
+  {
+    "id": "rag_11",
+    "type": "rag",
+    "query": "¿Cuáles son los contenidos de Lógica Informática?",
+    "expected_keywords": ["lógica", "proposicional", "predicado"],
+    "expected_source_pattern": ".*2060005.*",
+    "expected_subject": "Lógica Informática"
+  },
+  {
+    "id": "rag_12",
+    "type": "rag",
+    "query": "¿Qué objetivos tiene la asignatura de Sistemas Operativos?",
+    "expected_keywords": ["sistema operativo", "proceso", "memoria"],
+    "expected_source_pattern": ".*2060015.*",
+    "expected_subject": "Sistemas Operativos"
+  },
+  {
+    "id": "rag_13",
+    "type": "rag",
+    "query": "¿Cuál es la planificación temporal de Diseño y Pruebas?",
+    "expected_keywords": ["semana", "tema", "planificación"],
+    "expected_source_pattern": ".*2060029.*",
+    "expected_subject": "Diseño y Pruebas"
+  },
+  {
+    "id": "rag_14",
+    "type": "rag",
+    "query": "¿Cuáles son las actividades formativas de Introducción a la Matemática Discreta?",
+    "expected_keywords": ["actividad", "clase", "teórica", "práctica"],
+    "expected_source_pattern": ".*2060003.*",
+    "expected_subject": "Introducción a la Matemática Discreta"
+  },
+  {
+    "id": "rag_15",
+    "type": "rag",
+    "query": "¿Qué bibliografía se recomienda en el programa de Tecnología de Computadores?",
+    "expected_keywords": ["libro", "bibliografía", "referencia"],
+    "expected_source_pattern": ".*2060006.*",
+    "expected_subject": "Tecnología de Computadores"
+  },
+  {
+    "id": "sql_01",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas optativas hay?",
+    "expected_answer_contains": "37"
+  },
+  {
+    "id": "sql_02",
+    "type": "sql",
+    "query": "¿Qué asignaturas tienen 12 créditos?",
+    "expected_answer_contains": "Fundamentos de Programación"
+  },
+  {
+    "id": "sql_03",
+    "type": "sql",
+    "query": "¿Cuántas asignaturas hay por curso?",
+    "expected_answer_contains": "curso"
+  },
+  {
+    "id": "sql_04",
+    "type": "sql",
+    "query": "¿Qué departamentos tienen asignaturas y cuántas tiene cada uno?",
+    "expected_answer_contains": "departamento"
+  },
+  {
+    "id": "sql_05",
+    "type": "sql",
+    "query": "¿Cuántos grupos tiene Fundamentos de Programación?",
+    "expected_answer_contains": "grupo"
+  },
+  {
+    "id": "hybrid_01",
+    "type": "hybrid",
+    "query": "¿Cuántos créditos tiene Inteligencia Artificial y qué temas se estudian?",
+    "expected_answer_contains": "crédito",
+    "expected_source_pattern": ".*2060021.*"
+  },
+  {
+    "id": "hybrid_02",
+    "type": "hybrid",
+    "query": "¿Cuántas asignaturas tiene el departamento de Lenguajes y Sistemas Informáticos y cuáles son sus contenidos principales?",
+    "expected_answer_contains": "Lenguajes"
+  },
+  {
+    "id": "negative_01",
+    "type": "negative",
+    "query": "¿Cuál es el horario de clases de Fundamentos de Programación?",
+    "expected_keywords": ["no cuento", "no dispongo", "no tengo", "información"]
+  },
+  {
+    "id": "negative_02",
+    "type": "negative",
+    "query": "¿Cuántos alumnos hay matriculados en primer curso?",
+    "expected_keywords": ["no cuento", "no dispongo", "no tengo", "información"]
+  },
+  {
+    "id": "negative_03",
+    "type": "negative",
+    "query": "¿Quién es el profesor de Redes de Computadores?",
+    "expected_keywords": ["DNI", "nombre", "no"]
+  }
+]

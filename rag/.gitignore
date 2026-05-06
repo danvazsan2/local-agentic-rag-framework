@@ -1,0 +1,8 @@
+# RAG models
+models/
+
+# Bases de datos (todo lo terminado en .db)
+*.db
+*.pdf
+*.html
+*.txt
