@@ -73,16 +73,12 @@ the framework through a browser. It is not the core contribution; the RAG engine
 The following video presents a complete demo: from theme introduction to an overview of the three project interfaces. The video is currently in Spanish (as it was intended to present the functionalities to my research team). An English version is currently being prepared.
 
 <div align="center">
-  <a href="https://youtu.be/rBVghMyY3ao" target="_blank" rel="noopener noreferrer">
-    <div>
-      <strong>▶ Watch the demo video on YouTube</strong>
-    </div>
-    <div>
-      <img src="https://img.youtube.com/vi/rBVghMyY3ao/maxresdefault.jpg" alt="Project demo video thumbnail on YouTube" width="900" />
-    </div>
-    <div>
-      Click the thumbnail to play the video
-    </div>
+  <a href="https://www.youtube.com/watch?v=rBVghMyY3ao" target="_blank" rel="noopener noreferrer">
+    <img
+      alt="Project demo video on YouTube"
+      width="900"
+      src="docs/demo-video-card.svg"
+    />
   </a>
 </div>
 
