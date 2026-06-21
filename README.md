@@ -250,6 +250,21 @@ What remained is what measurably worked: hybrid retrieval with RRF and reranking
 
 The framework follows a **composition over inheritance** design: `RAGFramework` delegates to five specialized operation managers, each owning a distinct responsibility boundary. Every provider is created through a **factory pattern**, making components interchangeable at configuration time without touching source code.
 
+<div align="center">
+
+<img alt="End-to-end query pipeline: Phase 1 Preprocessing → Phase 2 Routing → Phase 3 Retrieval (documentary · SQL · hybrid routes) → Phase 4 Synthesis" width="600" src="design.svg" />
+
+<br/>
+
+<sub>End-to-end query pipeline — from preprocessing and routing through the documentary, SQL, and hybrid retrieval routes to final LLM synthesis.</sub>
+
+</div>
+
+<br/>
+
+<details>
+<summary><b>Simplified flow (Mermaid · renders natively on GitHub)</b></summary>
+
 ```mermaid
 flowchart TD
     IN["User Input<br/>(CLI · REST API · Python library)"] --> QP["QueryPreprocessor<br/>fuzzy metadata detection · pre-filter construction · Roman↔Arabic expansion"]
@@ -269,6 +284,8 @@ flowchart TD
     class R router;
     class SYN synth;
 ```
+
+</details>
 
 <details>
 <summary><b>Expand: full component diagram (operations · core · providers)</b></summary>
