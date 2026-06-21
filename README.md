@@ -1,166 +1,287 @@
-# Custom RAG Framework
+<div align="center">
 
-> A modular, fully-local **Retrieval-Augmented Generation** framework that answers
-> natural-language questions over **documents and SQL databases simultaneously**.
-> Intelligent query routing, hybrid BM25 + vector retrieval, cross-encoder reranking,
-> and Corrective RAG — all controlled by a single YAML file. Zero cloud dependency.
+# Local RAG Framework
 
-**Bachelor's Thesis (Trabajo de Fin de Grado) · Universidad de Sevilla · Python 3.10+ · LlamaIndex · LanceDB · Ollama**
+**A research-grade, fully-local Retrieval-Augmented Generation system that unifies unstructured documents and relational databases through a single natural-language interface.**
+
+*Ask one question. Get answers from PDFs, databases, or both — automatically.*
+
+<br/>
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](license)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Version](https://img.shields.io/badge/Version-1.1.0-00C853?style=for-the-badge)]()
+
+[![LlamaIndex](https://img.shields.io/badge/LlamaIndex-≥0.12-7C3AED?style=flat-square&logo=data:image/svg+xml;base64,&logoColor=white)](https://github.com/run-llama/llama_index)
+[![LanceDB](https://img.shields.io/badge/LanceDB-≥0.13-00897B?style=flat-square)](https://lancedb.github.io/lancedb/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_LLMs-000000?style=flat-square&logo=ollama&logoColor=white)](https://ollama.com)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![pytest](https://img.shields.io/badge/Tested_with-pytest-0A9EDC?style=flat-square&logo=pytest&logoColor=white)](https://pytest.org)
+
+<br/>
+
+  <a href="https://www.youtube.com/watch?v=rBVghMyY3ao" target="_blank" rel="noopener noreferrer">
+    <img
+      alt="▶ Watch the demo video on YouTube"
+      width="720"
+      src="demo-video-card.svg"
+    />
+  </a>
+  <br/>
+  <sup>▶ Click to watch a full walkthrough on YouTube</sup>
+
+<br/>
+
+*Bachelor's Thesis (Trabajo de Fin de Grado) — Double Degree in Mathematics & Computer Engineering — University of Seville, 2025–26*
+
+<br/>
+
+<img alt="Key results: 0.952 NDCG@10 · 93.8% NL2SQL · 100% abstention · 8.3 s latency" width="850" src="stat_strip.svg" />
+
+</div>
+
+---
+
+## Why This Project Exists
+
+Most production RAG systems make a **simplifying assumption that breaks in practice**: all the knowledge lives in one place.
+
+In reality, organizations hold information in two structurally incompatible forms:
+
+| Source Type | Example Question | What's Needed |
+|:---:|:---|:---|
+| **Documents** | *"What is the evaluation methodology for AI?"* | Semantic search across PDFs, reports, policies |
+| **Database** | *"How many elective courses are in the catalog?"* | `SELECT COUNT(*)` — not vector similarity |
+| **Both** | *"How many credits does AI have and what topics does it cover?"* | SQL result + document context, merged intelligently |
+
+A system that can only handle one of these forces users to know *where* to look before they can *ask what* they want.
+
+**This framework eliminates that friction.** One question in, one answer out — the system decides the rest.
+
+---
+
+## Key Highlights
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Production-Grade Architecture
+- **Composition over inheritance** design with 5 specialized operation managers
+- **Factory pattern** for hot-swappable providers (LLM, embeddings, vector stores, rerankers) — zero code changes
+- **YAML-driven configuration** — switch from Ollama to HuggingFace, LanceDB to Pinecone, in one line
+
+</td>
+<td width="50%" valign="top">
+
+### Paper-Grounded Pipeline
+Every retrieval decision is backed by peer-reviewed research:
+- **Hybrid BM25 + Dense Vector** retrieval with **RRF Fusion** [[Cormack et al., 2009]](#references)
+- **Cross-Encoder Reranking** [[Nogueira & Cho, 2019]](#references) with BGE-M3 [[Chen et al., 2024]](#references)
+- **Corrective RAG** — LLM-graded relevance with query rewriting [[Yan et al., 2024]](#references)
+- **Schema-conditioned NL-to-SQL** with self-correction [[Pourreza & Rafiei, 2023]](#references)
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### Zero Cloud Dependency
+Every component runs locally on consumer-grade hardware:
+- LLM inference via **Ollama**
+- Embeddings via **BGE-M3** (multilingual)
+- Reranking via **FlagEmbedding** cross-encoder
+- Vector storage via **LanceDB**
+
+**No API keys. No data leaves your machine.**
+
+</td>
+<td width="50%" valign="top">
+
+### Rigorous Evaluation
+- **80-query supervised benchmark** over a real corpus (154 PDFs · 39 SQL tables), split into well-formed and adversarial regimes
+- **7-configuration ablation** isolating each retrieval component's contribution
+- **Per-phase latency telemetry** (embedding → BM25 → vector → RRF → reranker → CRAG → synthesis)
+- Measures routing accuracy, retrieval quality, SQL correctness, and **adversarial robustness**
+
+</td>
+</tr>
+</table>
+
+---
+
+## Results
+
+> Measured on a supervised 80-query benchmark over a **real corpus of 154 PDFs and 39 SQL tables** (the Computer Engineering degree at the University of Seville). The benchmark splits into a *well-formed* regime (natural, in-vocabulary queries) and an *adversarial* regime (colloquial paraphrase, typos, out-of-corpus). Full methodology in [Evaluation Framework](#evaluation-framework).
+
+<div align="center">
+
+<img alt="Retrieval quality and adversarial robustness — NDCG@10 and MRR@10 well-formed ceiling vs. pipeline adversarial gains" width="850" src="fig_results_highlights.svg" />
+
+<br/>
+
+<img alt="End-to-end latency breakdown by phase — LLM synthesis 69.3%, LLM router 15.6%, reranker 14.1%, retrieval 2.2%" width="850" src="fig_latency_breakdown.svg" />
+
+</div>
+
+<br/>
+
+<details>
+<summary><b>Full results table</b></summary>
+
+| Dimension | Metric | Result |
+|:---|:---|:---:|
+| **Retrieval — full pipeline (C6)** | NDCG@10 (global) | **0.860** |
+| | HR@10 / MRR@10 (global) | **0.933** / **0.838** |
+| | NDCG@10 (well-formed ceiling) | **0.942** |
+| | NDCG@10 (adversarial) | **0.695** |
+| **NL-to-SQL agent** | Execution success rate | **93.8%** (30/32) |
+| | Resolved on first attempt | **68.8%** |
+| **Abstention** | Out-of-corpus queries refused | **100%** (12/12) |
+| | Overall abstention accuracy | **84.6%** |
+| **Latency** | End-to-end mean / P95 | **8.3 s** / **21.9 s** |
+
+</details>
+
+<details>
+<summary><b>Component ablation — NDCG@10 by regime (the core experiment)</b></summary>
+
+Seven configurations isolate each component's contribution over the 45 ground-truth retrieval queries (`wf` = well-formed, n=30 · `adv` = adversarial, n=15):
+
+| Config | Components | NDCG@10 (wf) | NDCG@10 (adv) | NDCG@10 (global) |
+|:---|:---|:---:|:---:|:---:|
+| C7 | naive RAG (uniform chunk + vector) | 0.863 | 0.614 | 0.780 |
+| C1 | BM25 only | 0.880 | 0.369 | 0.710 |
+| C2 | vector only | 0.863 | 0.614 | 0.780 |
+| C3 | hybrid (BM25 + vector + RRF) | 0.923 | 0.583 | 0.810 |
+| C5 | hybrid + reranker (no filter) | **0.952** | 0.571 | 0.825 |
+| **C6** | **full pipeline (hybrid + filter + reranker)** | 0.942 | **0.695** | **0.860** |
+
+> The C5 well-formed peak of **0.952** is the system's ranking ceiling on in-vocabulary queries; the full pipeline (C6) trades a hair of that ceiling for a decisive **+0.124 adversarial** gain — the trade-off the architecture is designed around.
+
+</details>
+
+<details>
+<summary><b>Routing, SQL robustness & latency breakdown</b></summary>
+
+**Query router (80 queries):** the two well-defined classes route cleanly — `structured` recall = **1.000** (every SQL query correctly identified) and `unstructured` precision = **0.943**. Raw global accuracy lands at 65%, but that figure is dominated by the `hybrid` class, where the "failure" is diagnostic rather than fatal: the benchmark's hybrid queries turned out to be two concatenated single-source questions ("*how many credits does X have **and** what topics does it cover?*"), which the classifier correctly decomposes by routing each clause to its natural branch.
+
+**NL-to-SQL agent (32 ground-truth SQL queries):** 93.8% execution success, 68.8% on the first attempt, 1.38 attempts on average. Notably, the *adversarial* split scores **higher** (100% vs 88.9% well-formed) — colloquial phrasing forces the model into more schema exploration and more conservative SQL, reducing column hallucination.
+
+**Latency — synthesis is the bottleneck:** of the 8.3 s mean end-to-end, **LLM synthesis consumes 69.3%** (≈4.6 s), the LLM router 15.6%, the reranker 14.1%, and the entire BM25 + vector + RRF retrieval stack just **2.1%**. The optimization target is unambiguous: shorten the generator's context or swap the model — tuning retrieval would be noise.
+
+</details>
+
+<details>
+<summary><b>Limitations & honest caveats</b></summary>
+
+Stated plainly, because they bound what the numbers mean:
+- **Benchmark scale.** 80 queries reveal stable trends and separate configurations, but per-class confidence intervals (e.g. the hybrid router class, n=14) would be wide; bootstrap CIs were not computed.
+- **Single generator.** All numbers use `qwen3:8b`. Router behavior, synthesis latency, and abstention depend on it; a larger model would likely reduce failures. The *retrieval ablation* generalizes beyond the model, since BM25 / vector / reranker are generator-independent.
+- **Closed domain.** The corpus is one degree's course catalog and queries were authored with corpus knowledge. Evaluation on organic user queries is future work.
+- **Abstention is a proxy.** It's measured by canonical-pattern detection against the prompt template, not human semantic judgement.
+
+</details>
+
+---
+
+## What Was Tried and Rejected
+
+The final architecture is the **residue of empirical elimination, not a checklist of trendy components.** Across eight sprints, several widely-cited techniques were implemented and then dropped because they did **not** survive testing under local quantized models:
+
+| Technique | Why it was rejected |
+|:---|:---|
+| **HyDE** (hypothetical-document embeddings) | No measurable retrieval gain on this corpus; added a full generation pass to every query. |
+| **GraphRAG / LightRAG** (knowledge graphs) | Indexing cost and brittleness under a quantized local LLM outweighed the benefit for this corpus scale. |
+| **Adaptive-RAG** (complexity-routed strategy) | Apparent gains did not hold up; the complexity classifier was unreliable under local models. |
+
+What remained is what measurably worked: hybrid retrieval with RRF and reranking, a depth-validated NL-to-SQL agent, a cascading router, and Corrective RAG.
+
+---
+
+## Project Scope
+
+<div align="center">
+
+| Capability | Coverage |
+|:---|:---:|
+| Pluggable vector stores | **5** — LanceDB · Chroma · FAISS · Qdrant · Pinecone |
+| Document formats parsed | **8** — PDF · DOCX · PPTX · HTML · MD · TXT · XLSX · CSV |
+| LLM / embedding back-ends | **Ollama** (local) · **HuggingFace** |
+| Prompt templates | **11** — Spanish · English · Multilingual |
+| Evaluation corpus | **154 PDFs · 39 SQL tables** (real university catalog) |
+| Benchmark | **80 labelled queries** · 7-config retrieval ablation |
+| Test suite | **23 test files** — unit · integration · evaluation |
+
+</div>
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Key Features](#key-features)
-3. [Architecture](#architecture)
-4. [End-to-End Data Flow](#end-to-end-data-flow)
-5. [How It Works](#how-it-works)
-   - [Document Ingestion Pipeline](#document-ingestion-pipeline)
-   - [Query Processing Pipeline](#query-processing-pipeline)
-   - [SQL Query Pipeline](#sql-query-pipeline)
-   - [Hybrid Query Pipeline](#hybrid-query-pipeline)
-6. [Corrective RAG](#corrective-rag)
-7. [Prerequisites](#prerequisites)
-8. [Installation](#installation)
-9. [Quick Start](#quick-start)
-10. [Configuration](#configuration)
-    - [Full Configuration Reference](#full-configuration-reference)
-    - [Metadata Extraction](#metadata-extraction)
-    - [Ready-to-Use Configurations](#ready-to-use-configurations)
-11. [CLI Mode](#cli-mode)
-12. [REST API](#rest-api)
-13. [Python Library](#python-library)
-14. [Model Download](#model-download)
-15. [Demos](#demos)
-16. [Testing & Evaluation](#testing--evaluation)
-17. [Troubleshooting](#troubleshooting)
-18. [Repository Structure](#repository-structure)
-19. [UI — Demo Layer](#ui--demo-layer)
-20. [Tech Stack](#tech-stack)
-21. [Future Roadmap](#future-roadmap)
+- [Results](#-results)
+- [What Was Tried and Rejected](#-what-was-tried-and-rejected)
+- [System Architecture](#system-architecture)
+- [Retrieval Pipeline — Technical Deep Dive](#retrieval-pipeline--technical-deep-dive)
+  - [Hybrid Retrieval with RRF Fusion](#hybrid-retrieval-with-rrf-fusion)
+  - [Cross-Encoder Reranking](#cross-encoder-reranking)
+  - [Corrective RAG](#corrective-rag)
+  - [NL-to-SQL Agent](#nl-to-sql-agent)
+- [3-Layer Query Router](#3-layer-query-router)
+- [Document Ingestion Pipeline](#document-ingestion-pipeline)
+- [Evaluation Framework](#evaluation-framework)
+- [Features at a Glance](#features-at-a-glance)
+- [Prerequisites & Installation](#prerequisites--installation)
+- [Quick Start](#quick-start)
+- [Configuration Reference](#configuration-reference)
+- [Interfaces](#interfaces)
+  - [CLI](#cli)
+  - [REST API](#rest-api)
+  - [Python Library](#python-library)
+- [Demos](#demos)
+- [Testing](#testing)
+- [UI — Chat Interface](#ui--chat-interface)
+- [Tech Stack](#tech-stack)
+- [References](#references)
 
 ---
 
-## Overview
+## System Architecture
 
-This repository contains a production-grade RAG engine built as a Final Degree Project.
-The research question it addresses is: *how do you build a single system that can
-intelligently retrieve answers from both unstructured documents and a structured SQL
-database, routing each query to the right source automatically — and reduce hallucinations
-along the way?*
+The framework follows a **composition over inheritance** design: `RAGFramework` delegates to five specialized operation managers, each owning a distinct responsibility boundary. Every provider is created through a **factory pattern**, making components interchangeable at configuration time without touching source code.
 
-The answer is a layered pipeline. A **3-layer query router** classifies each question
-as belonging to documents, a SQL database, or both — without user tagging. For document
-queries, **hybrid BM25 + vector retrieval** with Reciprocal Rank Fusion maximises recall
-while a **BGE cross-encoder reranker** sharpens precision before the LLM sees any context.
-An optional **Corrective RAG** step grades every retrieved chunk for relevance, discards
-noise, and rewrites the query if coverage falls below a configurable threshold. For SQL
-queries, an **NL-to-SQL agent** generates safe, validated SQL from natural language with
-up to three self-correction retries on failure.
+```mermaid
+flowchart TD
+    IN["User Input<br/>(CLI · REST API · Python library)"] --> QP["QueryPreprocessor<br/>fuzzy metadata detection · pre-filter construction · Roman↔Arabic expansion"]
+    QP --> R{"3-Layer Router<br/>L0 manual · L1 keyword · L2 LLM · L3 fallback"}
 
-Every component — LLM provider, embedding model, vector store, reranker, SQL connection,
-chunking strategy, routing thresholds, prompt template — is controlled by a **single YAML
-file**. Swapping providers or tuning the pipeline requires no code changes.
+    R -->|DOCS| HR["Hybrid Retriever<br/>BM25 + Vector → RRF fusion<br/>→ BGE reranker → CRAG (optional)"]
+    R -->|SQL| SQL["SQL Agent<br/>NL→SQL → validate → execute → format"]
+    R -->|HYBRID| BOTH["Both paths in parallel<br/>LLM merges evidence"]
 
-Three interfaces are provided: an **interactive CLI** with a configuration wizard,
-a **session-isolated REST API** for integration, and a direct **Python library**
-for embedding the framework into other applications.
+    HR --> SYN["LLM Synthesis"]
+    SQL --> SYN
+    BOTH --> SYN
+    SYN --> OUT["Final Response"]
 
-A Next.js chat interface (`ui/`) is included as a **demo/integration layer** that exposes
-the framework through a browser. It is not the core contribution; the RAG engine is.
-
-The following video presents a complete demo: from theme introduction to an overview of the three project interfaces. The video is currently in Spanish (as it was intended to present the functionalities to my research team). An English version is currently being prepared.
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=rBVghMyY3ao" target="_blank" rel="noopener noreferrer">
-    <img
-      alt="Project demo video on YouTube"
-      width="900"
-      src="docs/demo-video-card.svg"
-    />
-  </a>
-</div>
-
----
-
-## Key Features
-
-| Category | Supported Options |
-|---|---|
-| **LLM Providers** | Ollama (local) · HuggingFace (local/remote) |
-| **Embedding Providers** | Ollama · HuggingFace (sentence-transformers, BGE, …) |
-| **Vector Stores** | LanceDB · Chroma · FAISS · Qdrant · Pinecone |
-| **Retrieval** | Vector (semantic) · BM25 (lexical) · Hybrid (both with RRF) |
-| **Reranking** | FlagEmbedding cross-encoder (BGE-reranker-base / large / v2-m3) · Ollama |
-| **SQL Databases** | SQLite · PostgreSQL · MySQL — natural language → SQL |
-| **Query Router** | 3-layer automatic classification: documents, SQL, or hybrid |
-| **Corrective RAG** | LLM-based relevance grading + automatic query rewriting — toggleable |
-| **Document Formats** | PDF · DOCX · PPTX · HTML · Markdown · TXT · XLSX · CSV (via Docling) |
-| **Chunking** | Semantic (Docling-aware, structure-preserving) · Fixed-size (SentenceSplitter) |
-| **Metadata** | Regex extraction from filenames · DB enrichment · query-time filtering |
-| **Prompt Templates** | Spanish · English · multilingual — 11 built-in, custom supported |
-| **Interfaces** | Interactive CLI · REST API (session-isolated) · Python library |
-
----
-
-## Architecture
-
+    classDef router fill:#7C3AED,stroke:#5B21B6,color:#fff;
+    classDef synth fill:#00897B,stroke:#00695C,color:#fff;
+    class R router;
+    class SYN synth;
 ```
-User input
-    │
-    ▼
-┌─────────────────────┐
-│  QueryPreprocessor  │  Fuzzy metadata detection, pre-filter construction
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│   3-Layer Router    │  Keywords → LLM classifier → post-execution fallback
-└───┬─────────┬───────┘
-    │         │         │
-    │ DOCS    │ SQL     │ HYBRID
-    ▼         │         │
-┌──────────┐  │    ┌────▼────────────────┐
-│  Hybrid  │  │    │ Both paths run in   │
-│ Retrieval│  │    │ parallel, LLM merges│
-│BM25+Vec  │  │    │ quantitative +      │
-│   RRF    │  │    │ qualitative evidence│
-│ Reranker │  │    └─────────────────────┘
-│  (BGE)   │  │
-│ CRAG opt.│  ▼
-└────┬─────┘ ┌──────────────┐
-     │       │  SQL Agent   │
-     │       │ NL→SQL→Valid │
-     │       │ →Execute     │
-     │       └──────┬───────┘
-     │              │
-     └──────┬───────┘
-            │
-            ▼
-     LLM Synthesis
-            │
-            ▼
-       Final Response
-```
-
-The framework follows a **composition pattern**: `RAGFramework` (`rag/rag_framework/framework.py`)
-delegates to five specialised operation managers (lifecycle, index, query, hybrid, config).
-Components are created via the **factory pattern**, making every provider interchangeable
-at configuration time without modifying source code.
 
 <details>
-<summary>Expand: full Mermaid architecture diagram</summary>
+<summary><b>Expand: full component diagram (operations · core · providers)</b></summary>
 
 ```mermaid
 graph TB
-    subgraph Entry["Entry Point — run_rag.py"]
+    subgraph Entry["Entry Points"]
         CLI["CLI (cli/)"]
         API["REST API (api/)"]
-        DL["Model Download (utils/)"]
+        LIB["Python Library"]
     end
 
-    subgraph Framework["RAGFramework — rag_framework/framework.py"]
+    subgraph Framework["RAGFramework — framework.py"]
         direction TB
 
         subgraph Ops["Operations — Composition Pattern"]
@@ -178,24 +299,25 @@ graph TB
             QE["Document Query Engine"]
             HE["Hybrid Query Engine"]
             CRAG["Corrective RAG"]
+            QP["QueryPreprocessor"]
         end
 
         subgraph Prov["Providers — Factory Pattern"]
-            LLM["LLM Factory"]
-            EMB["Embedding Factory"]
-            VS["VectorStore Factory"]
-            RR["Reranker Factory"]
+            LLM["LLM Factory<br/>(Ollama · HuggingFace)"]
+            EMB["Embedding Factory<br/>(Ollama · sentence-transformers)"]
+            VS["VectorStore Factory<br/>(LanceDB · Chroma · FAISS · Qdrant · Pinecone)"]
+            RR["Reranker Factory<br/>(BGE cross-encoder)"]
         end
 
         subgraph Route["Routing & SQL"]
-            Router["Query Router (3-layer)"]
-            SQL["SQL Agent (NL → SQL → exec)"]
+            Router["3-Layer Query Router"]
+            SQL["SQL Agent (NL→SQL→exec)"]
         end
     end
 
     CLI --> Framework
     API --> Framework
-    DL --> Prov
+    LIB --> Framework
 
     Ops --> Core
     Core --> Prov
@@ -206,360 +328,311 @@ graph TB
 
 ---
 
-## End-to-End Data Flow
+## Retrieval Pipeline — Technical Deep Dive
 
-This view traces the complete runtime path from user input to final response:
+### Hybrid Retrieval with RRF Fusion
 
-```
-User input (CLI / API / Python library)
-  │
-  └─► QueryPreprocessor
-        - detect metadata values via fuzzy matching (stopword-filtered)
-        - construct metadata pre-filters if applicable
-        │
-        └─► Router (if enabled)
-              Layer 0: manual override tags → forced source for testing
-              Layer 1: keyword rules (fast path, no LLM call)
-              Layer 2: LLM classification (fallback for ambiguous queries)
-              Layer 3: post-execution fallback on empty results
-              │
-              ├─► UNSTRUCTURED path
-              │     retrieve (vector + BM25) → RRF fuse → rerank
-              │     → optional Corrective RAG → LLM synthesise
-              │
-              ├─► STRUCTURED path
-              │     load schema → NL-to-SQL → validate → execute → format
-              │
-              └─► HYBRID path
-                    run UNSTRUCTURED + STRUCTURED in parallel
-                    → LLM integrates quantitative + qualitative evidence
-```
+Dense vector retrieval captures semantic similarity but struggles with rare keywords, proper nouns, and exact-match requirements. Sparse BM25 handles these cases but fails at semantic paraphrase. This system runs both in parallel and combines rankings using **Reciprocal Rank Fusion** [Cormack et al., 2009].
 
-Each query follows a different path while sharing a common contract:
-configuration-driven behaviour, reproducible routing decisions, and
-a consistent response interface.
+For a document $d$ retrieved across ranking lists $R$ (one per retrieval modality):
+
+$$\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)}$$
+
+where $k = 60$ is a smoothing constant that penalises top-rank outliers and $\text{rank}_r(d)$ is the 1-indexed position of document $d$ in ranking list $r$. The configurable $\alpha$ parameter blends the two streams before fusion:
+
+$$\text{score}_{\text{hybrid}}(d) = \alpha \cdot \text{score}_{\text{vec}}(d) + (1 - \alpha) \cdot \text{score}_{\text{BM25}}(d)$$
+
+where $\alpha \in [0, 1]$ (default 0.5). Setting $\alpha = 1$ degrades to pure vector retrieval; $\alpha = 0$ to pure lexical.
+
+> **Reference:** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). *Reciprocal rank fusion outperforms condorcet and individual rank learning methods*. SIGIR '09, pp. 758–759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
 
 ---
 
-## How It Works
+### Cross-Encoder Reranking
 
-### Document Ingestion Pipeline
+The top-$K$ candidates from RRF fusion pass through a **BGE cross-encoder reranker** [Nogueira & Cho, 2019] before reaching the LLM context window. Cross-encoders perform full self-attention over the concatenated query–document pair, yielding a relevance score that is strictly more accurate than the cosine similarity used in bi-encoder retrieval [Reimers & Gurevych, 2019] — at the cost of $O(K)$ inference passes.
 
-When `ingest()` is called the framework executes the following pipeline:
+Unlike bi-encoders which embed query and document independently and compare via dot product:
+
+$$\text{sim}(q, d) = E_q(q) \cdot E_d(d)^\top$$
+
+the cross-encoder processes them jointly:
+
+$$\text{score}(q, d) = \text{CrossEncoder}([q; \texttt{[SEP]}; d])$$
+
+enabling token-level attention across the query–document boundary. The top-$N$ documents ($N \ll K$) after reranking are passed to the LLM.
+
+> **Reference:** Nogueira, R., & Cho, K. (2019). *Passage Re-ranking with BERT*. arXiv:1901.04085. — The reranker model is BAAI/bge-reranker-v2-m3 [Chen et al., 2024].
+
+---
+
+### Corrective RAG
+
+Standard RAG assumes retrieved documents are relevant — an assumption that breaks when queries are ambiguous, the corpus is heterogeneous, or embedding models suffer distribution shift. **Corrective RAG** [Yan et al., 2024] adds an LLM-based evaluation step that grades each retrieved chunk before synthesis.
+
+**Pipeline:**
 
 ```mermaid
 flowchart TD
-    A["Document Directory\n(PDF, DOCX, PPTX, HTML, MD, TXT, XLSX)"] --> B["File Discovery"]
+    A["Retrieved + Reranked Documents"] --> B["1 · Relevance Grading<br/>LLM labels each doc:<br/>RELEVANT · AMBIGUOUS · IRRELEVANT"]
+    B --> C["2 · Coverage check<br/>relevant_ratio = |RELEVANT| / |total|"]
+    C --> D{"relevant_ratio ≥ τ ?"}
+    D -->|Yes| E["3 · LLM Synthesis<br/>over relevant + ambiguous docs"]
+    D -->|No| F["Rewrite query → re-retrieve → re-grade<br/>(bounded by max_retries)"]
+    F --> B
+```
+
+The `relevance_threshold` parameter ($\tau \in [0, 1]$, default 0.5) controls sensitivity. At $\tau = 0$, CRAG only grades without triggering rewrites; at $\tau = 1$, any irrelevant document forces a rewrite. `max_retries` caps the rewrite–re-retrieve loop.
+
+> **Reference:** Yan, S., Gu, J., Zhu, Y., & Ling, Z. (2024). *Corrective Retrieval Augmented Generation*. arXiv:2401.15884.
+
+---
+
+### NL-to-SQL Agent
+
+The SQL path implements a schema-conditioned generation loop inspired by DIN-SQL [Pourreza & Rafiei, 2023]. The agent receives a structured schema representation — table descriptions, column types, foreign key relationships, and few-shot exemplars — and generates SQL that is validated before execution.
+
+**Self-correction loop** (up to `max_retries = 3`):
+
+```mermaid
+flowchart TD
+    Q["Natural Language Question"] --> S["Schema Injection<br/>→ LLM generates SQL"]
+    S --> V{"Security Validation<br/>SELECT-only · table/column whitelist<br/>· injection-pattern check · row-count cap"}
+    V -->|Invalid| X["Reject as unsafe"]
+    V -->|Valid| E["Execute"]
+    E -->|Execution error| RE["Feed error back to LLM<br/>→ regenerate (≤ max_retries)"]
+    RE --> S
+    E -->|Success| F["Format result"]
+```
+
+<details>
+<summary><b>Defence-in-depth SQL security model</b></summary>
+
+| Threat | Control |
+|--------|---------|
+| Destructive statements (`DROP`, `DELETE`, `UPDATE`) | Non-SELECT rejected pre-execution |
+| Injection tautologies (`OR 1=1`) | Pattern validator + LLM regeneration loop |
+| Schema probing | Table/column whitelist |
+| Data exfiltration | `max_rows` cap enforced at execution |
+| Persistent malformed SQL | Bounded retries with explicit failure signal |
+
+</details>
+
+> **Reference:** Pourreza, M., & Rafiei, D. (2023). *DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction*. NeurIPS 2023.
+
+---
+
+## 3-Layer Query Router
+
+The router classifies each query as `UNSTRUCTURED` (documents), `STRUCTURED` (SQL), or `HYBRID` without requiring user-provided tags. Classification proceeds through three layers in strict priority order:
+
+| Layer | Mechanism | Latency | When it fires |
+|:---:|-----------|:---:|---------------|
+| **0 — Manual override** | Explicit tag in query text | ~0 ms | Testing / forced routing |
+| **1 — Keyword rules** | Pattern matching over configurable vocabulary | ~1 ms | Confidence ≥ `keyword_confidence_threshold` |
+| **2 — LLM classifier** | LLM receives query + schema summary → classification | ~200–800 ms | Layer 1 inconclusive |
+| **3 — Post-execution fallback** | If primary source returns 0 results, retry with alternative | Varies | Empty result set |
+
+Layer 1 resolving early **avoids the LLM call entirely**, minimizing latency for common query patterns.
+
+<details>
+<summary><b>Decision tree</b></summary>
+
+```mermaid
+flowchart TD
+    S["Start"] --> L0{"Layer 0<br/>manual tag present?"}
+    L0 -->|Yes| F0["Return forced source"]
+    L0 -->|No| L1{"Layer 1<br/>keyword confidence ≥ threshold?"}
+    L1 -->|Yes| F1["Return keyword source"]
+    L1 -->|No| L2{"Layer 2<br/>LLM confidence ≥ llm_threshold?"}
+    L2 -->|Yes| F2["Return LLM classification"]
+    L2 -->|No| FD["Return router.default_source"]
+    F0 --> EX["Execute selected source"]
+    F1 --> EX
+    F2 --> EX
+    FD --> EX
+    EX --> L3{"Layer 3<br/>empty result AND fallback_on_empty?"}
+    L3 -->|Yes| RT["Retry: try_unstructured · try_hybrid · try_sql"]
+    L3 -->|No| DONE["Return result"]
+```
+
+</details>
+
+---
+
+## Document Ingestion Pipeline
+
+```mermaid
+flowchart TD
+    A["Document Directory\n(PDF · DOCX · PPTX · HTML · MD · XLSX · CSV)"] --> B["File Discovery"]
     B --> C{"Semantic Chunking\nenabled?"}
-    C -->|Yes| D["DoclingNodeParser\nStructure-aware splits\n(sections, tables, headings)"]
+    C -->|Yes| D["DoclingNodeParser\nStructure-aware splits\n(sections · tables · headings)"]
     C -->|No| E["SentenceSplitter\nFixed-size chunks\n(chunk_size + overlap)"]
-    D --> F{"Chunk too large?\n(> chunk_size × factor)"}
+    D --> F{"Chunk > chunk_size\n× semantic_oversized_factor?"}
     F -->|Yes| E
-    F -->|No| G["Nodes"]
+    F -->|No| G["Text Nodes"]
     E --> G
     G --> H{"Metadata extraction\nenabled?"}
-    H -->|Yes| I["Regex from filenames\n+ DB enrichment (optional)"]
-    H -->|No| J["Generate Embeddings\n(Ollama / HuggingFace)"]
+    H -->|Yes| I["Regex from filename\n+ optional DB enrichment\n(code → human-readable name)"]
+    H -->|No| J["Embedding Generation"]
     I --> J
-    J --> K["Store in Vector DB\n(LanceDB / Chroma / FAISS / …)"]
-    K --> L["Serialise Nodes\n(nodes.pkl for BM25)"]
+    J --> K["Vector Store\n(LanceDB / Chroma / FAISS / …)"]
+    K --> L["Serialise nodes.pkl\nfor BM25 lexical index"]
 ```
 
-**Step by step:**
+**Document parsing** uses [Docling](https://github.com/DS4SD/docling) [Auer et al., 2024] — an IBM Research toolkit that preserves document structure (section headings, table cells, reading order) during chunking, significantly outperforming naive character-split approaches for complex PDFs.
 
-1. **File Discovery** — The framework scans the configured documents directory for all
-   supported file types.
-2. **Document Parsing** — [Docling](https://github.com/DS4SD/docling) handles PDF, DOCX,
-   PPTX, HTML, Markdown, and XLSX with structure preservation. A `SimpleDirectoryReader`
-   fallback is used for TXT and JSON.
-3. **Chunking** — Two strategies available:
-   - **Semantic chunking** (default): `DoclingNodeParser` splits documents respecting
-     their internal structure (sections, tables, headings). Chunks exceeding
-     `chunk_size × semantic_oversized_factor` are re-split by `SentenceSplitter`.
-   - **Fixed-size chunking**: `SentenceSplitter` divides text into chunks of `chunk_size`
-     tokens with `chunk_overlap` overlap.
-4. **Metadata Extraction** *(optional)* — Regex patterns extract structured metadata from
-   filenames. Extracted codes can be enriched by SQLite lookup.
-5. **Embedding Generation** — Each chunk is converted to a dense vector using the
-   configured embedding model.
-6. **Storage** — Vectors are persisted in the configured vector store. Original nodes are
-   serialised to `nodes.pkl` for BM25 lexical search.
+**Metadata extraction** supports regex-based field extraction from filenames with optional SQLite enrichment (e.g., resolving a subject code `2060001` → `"Fundamentos de Programación"`). Extracted metadata enables **query-time pre-filtering**: the `QueryPreprocessor` detects mentioned entity values via fuzzy matching and constructs vector store filters before retrieval, reducing false positives from semantically overlapping documents.
+
+> **Reference:** Auer, C. et al. (2024). *Docling: An Efficient Open-Source Toolkit for AI-driven Document Conversion*. arXiv:2408.09869.
 
 ---
 
-### Query Processing Pipeline
+## Evaluation Framework
 
-```mermaid
-flowchart TD
-    Q["User Question"] --> PP["Step 0 — Query Preprocessing\nDetect metadata via fuzzy match\nBuild pre-filters if applicable"]
+The project includes a supervised evaluation pipeline (`rag/validation/`) with **80 labelled queries** built from scratch over the real corpus (154 PDFs · 39 SQL tables), partitioned into two regimes designed to measure both the system's performance ceiling and its failure modes.
 
-    PP --> R{"Router enabled?"}
+### Dataset Structure
 
-    R -->|No| DOC_PATH
-    R -->|Yes| ROUTE["Step 1 — 3-Layer Routing"]
+The benchmark splits into a **well-formed** regime (48 queries — clear, in-vocabulary, referring to corpus entities) and an **adversarial** regime (32 queries — semantic overlap, colloquial phrasing, deliberate typos, expected abstention, or out-of-domain):
 
-    ROUTE --> |"UNSTRUCTURED"| DOC_PATH
-    ROUTE --> |"STRUCTURED"| SQL_PATH["SQL Pipeline"]
-    ROUTE --> |"HYBRID"| HYB_PATH["Hybrid Pipeline\n(both in parallel)"]
+| Family | Well-formed | Adversarial | Total | What it stresses |
+|:---|:---:|:---:|:---:|:---|
+| **RAG** (documents) | 25 | 10 | 35 | Unstructured retrieval quality |
+| **SQL** (structured) | 10 | 8 | 18 | NL-to-SQL accuracy & self-correction |
+| **Hybrid** | 8 | 6 | 14 | Multi-source routing & evidence merge |
+| **Negative** | 5 | 4 | 9 | Abstention on absent-but-plausible facts |
+| **Out-of-domain** | – | 4 | 4 | Abstention on unrelated queries |
+| **Total** | **48** | **32** | **80** | |
 
-    subgraph DOC_PATH["Document Retrieval Path"]
-        direction TB
-        S2["Step 2 — Hybrid Retrieval\nVector search + BM25\nCombined via RRF"]
-        S2 --> S3["Step 3 — Reranking\nCross-encoder (BGE)\ntop_k candidates → top_n best"]
-        S3 --> S3B["Metadata Boost\n(boost matching docs)"]
-        S3B --> S4{"Step 4 — Corrective RAG\nenabled?"}
-        S4 -->|Yes| S4A["Grade each doc\nRELEVANT / IRRELEVANT / AMBIGUOUS\nFilter → rewrite if needed"]
-        S4 -->|No| S5
-        S4A --> S5["Step 5 — LLM Synthesis\nPrompt template + context → answer"]
-    end
+Of these, **45 carry ground-truth retrieval labels** (the retrieval ablation set), **32 carry ground-truth SQL**, and **13 measure abstention** (negative + out-of-domain). NDCG@*k* is the primary metric, as it is the only one of the four canonical IR metrics (HR@*k*, MRR@*k*, P@*k*, NDCG@*k*) that explicitly rewards rank order [Järvelin & Kekäläinen, 2002].
+
+Each query carries:
+- `expected_source_pattern` — regex matching the expected source document(s)
+- `expected_keywords` — minimum required terms in the answer
+- `expected_abstention` — whether the system should decline to answer
+- `expected_behaviors.routing` — expected router decision
+- `expected_behaviors.crag_should_rewrite` — whether CRAG rewrite should trigger
+- `difficulty` — `easy | medium | hard`
+
+<details>
+<summary><b>Per-query telemetry example</b></summary>
+
+Every evaluation run logs `events.jsonl` with per-query breakdown:
+
+```json
+{
+  "query_id": "r24",
+  "routing_decision": "unstructured",
+  "routing_confidence": 0.91,
+  "latency_ms": {
+    "embedding": 42,
+    "bm25": 8,
+    "vector": 61,
+    "rrf_fusion": 3,
+    "reranker": 287,
+    "crag_grading": 1240,
+    "synthesis": 3810,
+    "total": 5451
+  },
+  "crag_outcome": {
+    "relevant": 4,
+    "ambiguous": 1,
+    "irrelevant": 2,
+    "rewrite_triggered": true,
+    "rewritten_query": "técnicas aprendizaje automático avanzado Ampliación IA evaluación práctica"
+  }
+}
 ```
 
-#### Step 0: Query Preprocessing
-
-Before any retrieval, the `QueryPreprocessor` analyses the question for metadata values
-that match known fields (e.g. subject names, department codes). It applies fuzzy matching
-with stopword filtering and Roman↔Arabic numeral expansion. If matches are found, metadata
-pre-filters are created to narrow retrieval scope.
-
-#### Step 1: 3-Layer Routing
-
-| Layer | Mechanism | When It Fires |
-|---|---|---|
-| **Layer 0 — Manual Override** | Explicit tags in the query text | When override tags are present (testing) |
-| **Layer 1 — Keyword Rules** | Fast pattern matching, no LLM call | When confidence ≥ `keyword_confidence_threshold` |
-| **Layer 2 — LLM Classification** | LLM receives query + schema summary and classifies it | When Layer 1 is inconclusive |
-| **Layer 3 — Post-Execution Fallback** | If primary source returns 0 results, retry with alternative | After execution, when results are empty |
-
-Routing outputs one of three decisions: `UNSTRUCTURED` · `STRUCTURED` · `HYBRID`.
-
-**Decision tree (deterministic order):**
-
-```
-Start
- → Layer 0: manual override tag present?
-     yes: return forced source
-     no: continue
- → Layer 1: keyword classifier confidence ≥ threshold?
-     yes: return keyword source
-     no: continue
- → Layer 2: LLM classifier confidence ≥ llm_threshold?
-     yes: return LLM source
-     no: return default_source from router config
- → Execute selected source
- → Layer 3: empty result and fallback_on_empty=true?
-     yes: execute fallback strategy (try_sql / try_unstructured / try_hybrid)
-     no: finalise
-```
-
-Layer 1 resolving early avoids an LLM call entirely, keeping routing near-constant time
-for unambiguous queries.
-
-#### Step 2: Hybrid Retrieval
-
-Two retrieval strategies run in parallel and their results are fused:
-
-- **Vector Search** — finds the `top_k` most semantically similar chunks using the
-  embedding model.
-- **BM25 (Lexical Search)** — finds the `top_k` best keyword-matching chunks using
-  term frequency.
-
-Results are combined via **Reciprocal Rank Fusion (RRF)**:
-
-$$\text{score}(d) = \alpha \cdot \frac{1}{k + \text{rank}_{\text{vec}}(d)} + (1 - \alpha) \cdot \frac{1}{k + \text{rank}_{\text{bm25}}(d)}$$
-
-Where `α` controls the balance (0 = BM25 only, 1 = vector only, 0.5 = equal weight).
-When `use_hybrid_search` is disabled, only vector search is used.
-
-#### Step 3: Reranking
-
-A cross-encoder model (BGE-reranker) re-scores all retrieved chunks by directly comparing
-each chunk against the full query. This produces a more accurate relevance ranking than
-embedding similarity alone. The top `top_n` chunks are kept for synthesis.
-
----
-
-### SQL Query Pipeline
-
-```mermaid
-flowchart TD
-    Q["Natural Language Question"] --> S1["Load DB Schema\n(tables, columns, FKs, sample values)"]
-    S1 --> S2["LLM Generates SQL\n(schema + question → SQL)"]
-    S2 --> S3["Security Validation\nSELECT-only · no injection\ntable/column whitelist · row limit"]
-    S3 -->|Valid| S4["Execute Query"]
-    S3 -->|Invalid| REJECT["Reject — security violation"]
-    S4 -->|Success| S5["Format Results"]
-    S4 -->|Error| S6{"Retries left?\n(max 3)"}
-    S6 -->|Yes| S7["Feed error back to LLM\n→ regenerate SQL"]
-    S7 --> S3
-    S6 -->|No| S8["Return error"]
-    S5 --> S9["Return formatted results"]
-```
-
-**SQL security model — defence in depth:**
-
-| Threat | Example | Control |
-|---|---|---|
-| Destructive statements | `DROP TABLE users` | Non-SELECT statements rejected by validator |
-| Tautology injection | `... OR 1=1` | Validation + LLM regeneration loop |
-| Oversized extraction | `SELECT * FROM huge_table` | `max_rows` cap at execution level |
-| Schema probing | queries over unknown tables | Table/column whitelist checks |
-| Repeated malformed SQL | syntax or semantic errors | Bounded retries with explicit failure |
-
-> This does not replace perimeter security. For production, place the API behind
-> authentication, TLS, and rate controls.
-
----
-
-### Hybrid Query Pipeline
-
-```mermaid
-flowchart LR
-    Q["Question"] --> P["Parallel Execution"]
-    P --> DOC["Document Pipeline\n(retrieve + rerank + CRAG + synthesise)"]
-    P --> SQL["SQL Pipeline\n(schema → SQL → validate → execute)"]
-    DOC --> MERGE["LLM Integration\nMerge quantitative (SQL)\n+ qualitative (docs)"]
-    SQL --> MERGE
-    MERGE --> R["Combined Response"]
-```
-
-The `HybridQueryEngine` runs both pipelines in parallel and feeds the combined results to
-the LLM for an integrated response. If one source returns no results, the fallback strategy
-determines whether to retry with the other source.
-
----
-
-## Corrective RAG
-
-**Corrective RAG (CRAG)** adds an LLM-based relevance evaluation step between retrieval
-and synthesis. Its goal is to ensure only truly relevant documents reach the LLM,
-improving answer quality and reducing hallucinations.
-
-> Reference: Yan et al., *"Corrective Retrieval Augmented Generation"* (2024).
-
-### Activation
-
-```yaml
-corrective_rag:
-  enabled: true
-  relevance_threshold: 0.5   # minimum ratio of relevant docs before rewriting
-  max_retries: 1             # query rewrite attempts (0 = grading only, no rewrite)
-```
-
-### Pipeline
-
-```mermaid
-flowchart TD
-    A["Retrieved + Reranked Documents"] --> B["1. Relevance Grading\nLLM evaluates each document"]
-    B --> C{"relevant_ratio ≥ threshold?"}
-    C -->|Yes| D["Use relevant + ambiguous docs"]
-    C -->|No| E["2. Query Rewriting\nLLM reformulates with alternative terms"]
-    E --> F["3. Re-Retrieval\nSearch again with new query"]
-    F --> G["4. Re-Grading\nEvaluate new documents"]
-    G --> H["Combine all relevant docs"]
-    D --> I["5. LLM Synthesis\nGenerate final answer"]
-    H --> I
-```
-
-**Grading outcomes per document:**
-
-| Grade | Meaning | Action |
-|---|---|---|
-| **RELEVANT** | Directly useful information | Kept |
-| **AMBIGUOUS** | Tangentially related | Kept (benefit of the doubt) |
-| **IRRELEVANT** | No useful information | Discarded |
-
-**Configuration parameters:**
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enabled` | bool | `false` | Toggle Corrective RAG on/off |
-| `relevance_threshold` | float | `0.5` | Minimum ratio of relevant docs to skip rewriting (0.0–1.0) |
-| `max_retries` | int | `1` | Maximum query rewrite + re-retrieval attempts. `0` = grading only |
-
-**Performance considerations:**
-
-CRAG adds one grading LLM call per retrieved chunk plus one optional rewrite call.
-With `top_n=7`, this adds ~7–8 extra LLM calls per query. Enable CRAG when answer quality
-is prioritised over speed, or when the document corpus is heterogeneous and retrieval may
-return tangentially related content.
-
-**Sample debug output:**
-
-```
-[INFO] [CRAG] Evaluating relevance of 7 documents...
-[INFO] [CRAG] Evaluation: 5 relevant, 1 irrelevant, 1 ambiguous out of 7
-[INFO] [CRAG] Result: 6 relevant documents kept
-
-# When rewriting is triggered:
-[INFO] [CRAG] Relevance ratio (0.14) below threshold (0.50). Rewriting query...
-[INFO] [CRAG] Rewritten query: 'opening hours customer service office'
-[INFO] [CRAG] Re-retrieval: 7 documents → 8 relevant total after merge
-```
-
----
-
-## Prerequisites
-
-- **Python** 3.10 or higher
-- **Ollama** installed and running (required for the default configuration)
-  - Download from [ollama.com](https://ollama.com)
-  - Pull the default models:
-    ```bash
-    ollama pull qwen3:8b
-    ollama pull bge-m3:latest
-    ```
-- **NVIDIA GPU with CUDA** *(optional)* — accelerates HuggingFace local models and the
-  BGE cross-encoder reranker
-
----
-
-## Installation
+</details>
 
 ```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd <repository>
-
-# 2. Set up a Python environment
-conda create -n rag-env python=3.11
-conda activate rag-env
-
-# 3. Install dependencies
+# Run evaluation suite
 cd rag
+python validation/run_eval.py --run-id eval_v1
+
+# Inspect results
+python validation/inspect_run.py eval_v1
+python validation/inspect_run.py eval_v1 --type sql
+python validation/inspect_run.py eval_v1 --query-id r24
+python validation/inspect_run.py eval_v1 --percentile 95   # latency P95
+```
+
+---
+
+## Features at a Glance
+
+| Category | What's implemented |
+|----------|:-------------------|
+| **LLM Providers** | Ollama (local) · HuggingFace Transformers (local/remote) |
+| **Embedding Providers** | Ollama · HuggingFace sentence-transformers (BGE, E5, MiniLM, …) |
+| **Vector Stores** | LanceDB (default) · ChromaDB · FAISS · Qdrant · Pinecone |
+| **Retrieval** | Dense vector · BM25 · Hybrid BM25+vector with RRF fusion |
+| **Reranking** | BGE cross-encoder (bge-reranker-base / large / v2-m3) · Ollama reranker |
+| **SQL Databases** | SQLite · PostgreSQL · MySQL — NL-to-SQL with self-correction |
+| **Query Router** | 3-layer: keyword rules → LLM classifier → post-exec fallback |
+| **Corrective RAG** | LLM-graded relevance + configurable query rewriting |
+| **Document Formats** | PDF · DOCX · PPTX · HTML · Markdown · TXT · XLSX · CSV |
+| **Chunking** | Semantic (Docling-aware, structure-preserving) · Fixed-size |
+| **Metadata** | Regex extraction from filenames · DB enrichment · pre-filter at query time |
+| **Prompt Templates** | 11 built-in (Spanish · English · multilingual) · custom string supported |
+| **Interfaces** | Interactive CLI · Session-isolated REST API · Python library |
+| **Evaluation** | 80-query supervised benchmark · per-phase latency telemetry |
+
+---
+
+## Prerequisites & Installation
+
+**Requirements:**
+- Python 3.10+
+- [Ollama](https://ollama.com) installed and running (for the default configuration)
+- NVIDIA GPU with CUDA *(optional — accelerates HuggingFace reranker)*
+
+```bash
+# 1. Pull default models (Ollama)
+ollama pull qwen3:8b       # LLM
+ollama pull bge-m3:latest  # multilingual embeddings
+
+# 2. Clone and install
+git clone <repository-url>
+cd <repository>/rag
+
+# 3. (Optional) GPU-accelerated PyTorch
+pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+# 4. Install dependencies
 pip install -r requirements.txt
 ```
 
-> If you have a CUDA-capable GPU, install PyTorch with CUDA support before
-> `pip install -r requirements.txt`:
-> ```bash
-> pip install torch --index-url https://download.pytorch.org/whl/cu128
-> ```
-
-**Core dependencies:**
+<details>
+<summary><b>Core dependencies</b></summary>
 
 | Package | Version | Purpose |
-|---|---|---|
-| `llama-index` | ≥ 0.12.0 | Core RAG engine |
-| `lancedb` | ≥ 0.13.0 | Default local vector store |
-| `docling` | ≥ 2.15.0 | Advanced document parsing (PDF, DOCX, PPTX, HTML, XLSX) |
+|---------|---------|---------|
+| `llama-index` | ≥ 0.12.0 | RAG engine |
+| `lancedb` | ≥ 0.13.0 | Default vector store |
+| `docling` | ≥ 2.15.0 | Structure-aware document parsing |
 | `sentence-transformers` | ≥ 3.0.0 | HuggingFace embedding models |
-| `FlagEmbedding` | ≥ 1.3.0 | Cross-encoder reranking |
-| `torch` | ≥ 2.2.0 | Backend for HuggingFace models |
-| `SQLAlchemy` | ≥ 2.0.0 | SQL database abstraction |
-| `pyyaml` | ≥ 6.0.0 | YAML configuration loading |
+| `FlagEmbedding` | ≥ 1.3.0 | BGE cross-encoder reranking |
+| `torch` | ≥ 2.2.0 | Backend for local models |
+| `SQLAlchemy` | ≥ 2.0.0 | SQL abstraction layer |
+| `pyyaml` | ≥ 6.0.0 | YAML configuration |
+
+</details>
 
 ---
 
 ## Quick Start
 
-All commands below assume you are inside the `rag/` directory:
+All commands assume you are inside `rag/`:
 
 ```bash
 cd rag
-conda activate rag-env
+conda activate rag-env   # or your preferred env
 ```
 
-### Option A: Interactive CLI
+### Option A — Interactive CLI
 
 ```bash
 python run_rag.py cli
@@ -568,38 +641,42 @@ python run_rag.py cli
 # → Option 2: Start chatting
 ```
 
-### Option B: REST API
+### Option B — REST API
 
 ```bash
 # Terminal 1 — start the server
 python run_rag.py api
 
-# Terminal 2 — verify it is running
+# Terminal 2 — verify
 curl http://localhost:8765/health
 ```
 
-### Option C: Python Library
+### Option C — Python Library
 
 ```python
 from rag_framework import RAGFramework
 
-# Use default configuration
 rag = RAGFramework()
-rag.ingest()                              # index ./documents/
+rag.ingest()                               # index ./documents/
 print(rag.query("What is X about?"))
 
-# Load a custom configuration
+# Load a custom YAML configuration
 rag = RAGFramework.from_yaml("config/sql_hybrid.yaml")
+
+# Directed queries (bypass the router)
+rag.query_documents("explain the regulation")  # documents only
+rag.query_sql("how many users are there?")     # SQL only
+rag.query_hybrid("sales trends this quarter")  # both sources
 ```
 
 ---
 
-## Configuration
+## Configuration Reference
 
-All pipeline behaviour is controlled by a single YAML file.
-The default is `rag/config/rag_config.yaml`.
+All pipeline behaviour is controlled by a single YAML file. Default: `rag/config/rag_config.yaml`.
 
-### Full Configuration Reference
+<details>
+<summary><b>⚙️ Full configuration reference (click to expand)</b></summary>
 
 ```yaml
 # ── LLM ──────────────────────────────────────────────────────────────────────
@@ -607,13 +684,6 @@ llm:
   provider: ollama              # ollama | huggingface
   model: qwen3:8b
   base_url: "http://localhost:11434"
-
-  # HuggingFace alternative:
-  # provider: huggingface
-  # hf_model_id: "meta-llama/Llama-2-7b-chat-hf"
-  # local_model_path: "./models/llm/TinyLlama--TinyLlama-1.1B-Chat-v1.0"
-  # device: auto
-
   context_window: 8192
   temperature: 0.0              # 0 = deterministic output
   top_p: 0.9
@@ -621,23 +691,12 @@ llm:
   max_tokens: 1024
   repeat_penalty: 1.1
   request_timeout: 300.0
-  thinking: false               # disable chain-of-thought tokens (reduces latency)
-  stop_sequences:
-    - "\n\nQuestion:"
-    - "\n\nUser:"
+  thinking: false               # suppress chain-of-thought tokens
 
 # ── Embeddings ───────────────────────────────────────────────────────────────
 embedding:
-  provider: ollama              # ollama | huggingface
-  model: bge-m3:latest          # multilingual, 1024 dims
-  base_url: "http://localhost:11434"
-
-  # HuggingFace alternative:
-  # provider: huggingface
-  # hf_model_id: "sentence-transformers/all-MiniLM-L6-v2"
-  # device: auto
-
-  # Note: changing the embedding model requires re-indexing all documents.
+  provider: ollama
+  model: bge-m3:latest          # multilingual, 1024-dim
 
 # ── Vector Store ─────────────────────────────────────────────────────────────
 vector_store:
@@ -651,44 +710,21 @@ chunking:
   chunk_size: 1536
   chunk_overlap: 200
   use_semantic_chunking: true   # DoclingNodeParser — structure-preserving
-  semantic_oversized_factor: 1.5 # chunks > chunk_size × 1.5 are re-split
+  semantic_oversized_factor: 1.5
 
 # ── Retrieval ─────────────────────────────────────────────────────────────────
 retrieval:
-  use_hybrid_search: true       # BM25 + vector with RRF fusion
+  use_hybrid_search: true       # BM25 + vector with RRF
   top_k: 15                     # candidates entering the reranker
   alpha: 0.5                    # 0 = BM25 only  ·  1 = vector only
-  rrf_k: 80                     # RRF smoothing constant
-
+  rrf_k: 80                     # RRF smoothing constant k
   reranker:
     enabled: true
-    provider: huggingface       # huggingface | ollama
+    provider: huggingface
     model: BAAI/bge-reranker-v2-m3
     local_model_path: "./models/bge-reranker-v2-m3"
     device: auto                # auto | cuda | cpu
     top_n: 7                    # chunks reaching the LLM after reranking
-
-# ── Directories ───────────────────────────────────────────────────────────────
-directories:
-  documents_dir: "./documents"
-  vector_store_dir: "./vector_store"
-
-# ── Prompt Template ───────────────────────────────────────────────────────────
-# Built-in templates:
-#   Spanish  : default, conversational_es, academic_es, summary_es
-#   English  : default_en, conversational_en, academic_en, code_assistant_en
-#   Neutral  : strict_factual, chain_of_thought, comparison
-prompt_template: default
-
-# Custom prompt (set prompt_template: custom):
-# custom_prompt: |
-#   Answer strictly from the context below.
-#   Context: {context_str}
-#   Question: {query_str}
-#   Answer:
-
-# ── Debug ─────────────────────────────────────────────────────────────────────
-debug: false   # logs retrieved chunks, scores, and routing decisions
 
 # ── SQL ───────────────────────────────────────────────────────────────────────
 sql:
@@ -699,126 +735,84 @@ sql:
     pool_size: 5
     query_timeout: 30.0
   schema:
-    include_tables: []          # [] = all tables
-    exclude_tables: []
+    include_tables: []          # [] = expose all tables
     include_sample_values: true
     sample_values_limit: 5
-    include_relationships: true
+    table_descriptions: {}      # natural-language descriptions injected into prompt
+    column_descriptions: {}
   security:
-    allow_only_select: true     # enforce read-only access
-    max_rows: 100               # cap on rows returned per query
+    allow_only_select: true
+    max_rows: 100
     max_execution_time: 30.0
   max_retries: 3                # LLM self-correction attempts on SQL failure
 
 # ── Query Router ──────────────────────────────────────────────────────────────
 router:
   enabled: true
-  default_source: unstructured  # unstructured | structured | hybrid
+  default_source: unstructured
+  use_keyword_routing: true
+  keyword_confidence_threshold: 0.8
+  use_llm_fallback: true
+  confidence_threshold: 0.7
+  fallback_on_empty: true
+  fallback_strategy: "try_unstructured"
+  structured_keywords: ["cuántas", "cuántos", "listar", "grupos", ...]
+  unstructured_keywords: ["metodología", "evaluación", "competencias", ...]
 
 # ── Corrective RAG ────────────────────────────────────────────────────────────
 corrective_rag:
   enabled: false
-  relevance_threshold: 0.5     # min ratio of relevant docs before rewriting
-  max_retries: 1               # 0 = grading only, no query rewrite
+  relevance_threshold: 0.5     # τ — minimum relevant ratio before rewrite
+  max_retries: 1               # 0 = grade-only, no rewrite
 
 # ── Metadata Extraction ───────────────────────────────────────────────────────
-# metadata:
-#   enabled: true
-#   filename_patterns:
-#     - pattern: "^(?P<dept>\\w+)_(?P<subject>\\w+)_(?P<year>\\d{4})"
-#   db_enrichment:
-#     enabled: true
-#     db_path: "./data/academic.db"
-#     table: subjects
-#     key_column: code
-#     value_column: name
-#   filtering:
-#     enabled: true
-```
-
-### Metadata Extraction
-
-The framework can extract structured metadata from document filenames and use it to
-narrow retrieval at query time — without any changes to the query text.
-
-```yaml
 metadata:
   enabled: true
   filename_patterns:
-    - pattern: "^(?P<dept>\\w+)_(?P<subject>\\w+)_(?P<year>\\d{4})"
-      # e.g. "Ingenieria_AI001_2024.pdf" → dept=Ingenieria, subject=AI001, year=2024
+    - pattern: "^(?P<document_type>Programa|Proyecto)_(?P<subject_code>\\d+)"
   db_enrichment:
-    enabled: true               # optional: resolve codes to human-readable names
-    db_path: "./data/academic.db"
-    table: subjects
-    key_column: code
-    value_column: name          # AI001 → "Artificial Intelligence"
+    enabled: true
+    sqlite_path: "./data/academic.db"
+    source_field: "subject_code"
+    table: "subjects"
+    key_column: "code"
+    value_column: "name"       # resolves 2060001 → "Fundamentos de Programación"
   filtering:
     enabled: true
+    match_field: "subject_name"
+    fuzzy_threshold: 0.65
+
+# ── Prompt Template ───────────────────────────────────────────────────────────
+prompt_template: default       # see: python run_rag.py cli → option 5
+
+# ── Debug ─────────────────────────────────────────────────────────────────────
+debug: false                   # logs chunks, scores, and routing decisions
 ```
 
-**How it works:**
-
-1. **Filename regex** — Named capture groups extract structured fields at ingestion time.
-2. **DB enrichment** *(optional)* — Extracted codes are resolved to display names via a
-   SQLite lookup (e.g. `AI001` → `"Artificial Intelligence"`).
-3. **Query-time filtering** — The `QueryPreprocessor` detects metadata values mentioned
-   in the user's question using fuzzy matching (with stopword filtering and Roman↔Arabic
-   numeral expansion) and creates pre-filters that narrow retrieval before any embedding
-   lookup.
+</details>
 
 ### Ready-to-Use Configurations
 
-The `rag/config/` directory contains ready-to-use configurations:
-
 | File | Description |
-|---|---|
-| `rag_config.yaml` | **Default** — Ollama (qwen3:8b + bge-m3) · LanceDB · hybrid search · reranker · SQL · router |
+|------|-------------|
+| `rag_config.yaml` | **Default** — Ollama + LanceDB + hybrid + reranker + SQL + router |
 | `huggingface.yaml` | HuggingFace models instead of Ollama (GPU recommended) |
 | `local_models.yaml` | Fully offline — locally downloaded HuggingFace models |
-| `chroma.yaml` | ChromaDB as vector store instead of LanceDB |
-| `sql_hybrid.yaml` | SQL + hybrid routing fully configured |
-| `proyectos_docentes.yaml` | Domain example — hybrid (documents + SQL) |
-| `proyectos_docentes_solo_rag.yaml` | Domain example — documents only |
-| `proyectos_docentes_solo_sql.yaml` | Domain example — SQL only |
-| `rtx4060_candidates.yaml` | Optimised model candidates for RTX 4060 (8 GB VRAM) |
-
-**Loading a custom configuration:**
-
-```bash
-# CLI
-python run_rag.py cli
-# → "Load from YAML file" → select file
-
-# API
-python run_rag.py api --config config/huggingface.yaml
-
-# Python
-rag = RAGFramework.from_yaml("config/local_models.yaml")
-```
+| `chroma.yaml` | ChromaDB as vector store |
+| `sql_hybrid.yaml` | SQL + hybrid routing, fully configured |
 
 ---
 
-## CLI Mode
+## Interfaces
+
+### CLI
 
 ```bash
 cd rag
-python run_rag.py          # default (same as 'cli')
-python run_rag.py cli      # explicit
+python run_rag.py cli
 ```
 
-### Startup: Choose Configuration
-
-On launch, three options are presented:
-
-1. **Default configuration** — Loads `config/rag_config.yaml` immediately.
-2. **Configuration wizard** — Interactive step-by-step wizard to customise each
-   component: LLM, embeddings, reranker, vector store, SQL, prompt template, directories.
-3. **Load from YAML file** — Select any existing `.yaml` from the `config/` directory.
-
-### Main Menu
-
-Once configured, the main menu provides 11 operations:
+On launch: choose default config, run the interactive wizard, or load a YAML file. The main menu exposes 11 operations including **live feature toggles** (CRAG · SQL router · hybrid search · reranker · debug mode) without restarting.
 
 ```
 ╔════════════════════════════════════════╗
@@ -839,476 +833,161 @@ Once configured, the main menu provides 11 operations:
 ╚════════════════════════════════════════╝
 ```
 
-| Option | Description |
-|---|---|
-| **1 — Ingest** | Scans documents directory, chunks, embeds, and writes the vector index |
-| **2 — Chat** | Multi-turn interactive conversation (auto-ingests if no index exists) |
-| **3 — Single query** | One question → answer with full pipeline trace |
-| **4 — Validate models** | Checks that the configured LLM and embedding models are reachable |
-| **5 — Templates** | Lists all built-in prompt templates with previews |
-| **6 — Show config** | Displays a structured summary of the active configuration |
-| **7 — Edit config** | Modify individual components at runtime (no restart needed) |
-| **8 — Save config** | Export the current configuration to a YAML file |
-| **9 — Functionalities** | Toggle 5 pipeline features live: **Corrective RAG** · **SQL Router** · **Hybrid Search** · **Reranker** · **Debug Mode** |
-| **10 — Download** | Download HuggingFace models for offline use |
-| **11 — API** | Launch the REST API server from within the CLI session |
-
 ---
 
-## REST API
+### REST API
 
 ```bash
-cd rag
 python run_rag.py api                                   # port 8765 (default)
-python run_rag.py api --port 8080                       # custom port
-python run_rag.py api --config config/sql_hybrid.yaml  # custom config
+python run_rag.py api --port 8080 --config config/sql_hybrid.yaml
 ```
 
-The server binds to `0.0.0.0:8765`. Each **session** has its own isolated document
-directory and vector store — multiple clients can run concurrently without interference.
-
-### Endpoints
+Each **session** gets an isolated document directory and vector store — multiple clients run concurrently without state interference.
 
 | Method | Path | Description |
-|---|---|---|
-| `GET` | `/health` | Server status, version, and active session count |
-| `GET` | `/config` | Active LLM, embedding, and retrieval settings |
+|:------:|------|-------------|
+| `GET` | `/health` | Server status, version, active session count |
+| `GET` | `/config` | Active LLM, embedding, retrieval settings |
 | `GET` | `/configs` | List available YAML configuration files |
 | `POST` | `/sessions` | Create or retrieve a session (with optional config override) |
-| `POST` | `/ingest` | Ingest documents into a session (base64-encoded) |
+| `POST` | `/ingest` | Ingest base64-encoded documents into a session |
 | `POST` | `/query` | Execute a RAG query against a session |
 | `POST` | `/clear` | Delete a session and all its data |
 
-### HTTP Status Codes
-
-| Code | Meaning |
-|---|---|
-| `200` | Success (health, config reads, query/ingest completed) |
-| `201` | Created (new session via `POST /sessions`) |
-| `400` | Bad request — missing or invalid fields |
-| `404` | Not found — unknown endpoint, missing session or config |
-| `409` | Conflict — session already exists |
-| `500` | Internal error — ingestion, query, or config failure |
-
-### Request / Response Examples
-
-#### Health check
+<details>
+<summary><b>Quick API example</b></summary>
 
 ```bash
-curl http://localhost:8765/health
-```
-
-```json
-{
-  "status": "ok",
-  "version": "1.1.0",
-  "active_sessions": 2
-}
-```
-
-#### Create a session
-
-```bash
+# Create session
 curl -X POST http://localhost:8765/sessions \
   -H "Content-Type: application/json" \
   -d '{"session_id": "my-session"}'
-```
 
-Override the LLM or configuration for this session:
-
-```bash
-curl -X POST http://localhost:8765/sessions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "session_id": "my-session",
-    "config_name": "config/huggingface.yaml",
-    "llm_model": "mistral-7b"
-  }'
-```
-
-#### Ingest documents
-
-```bash
-# Encode a file and ingest it
-B64=$(base64 -w 0 my_document.pdf)
+# Ingest a document
+B64=$(base64 -w 0 report.pdf)
 curl -X POST http://localhost:8765/ingest \
   -H "Content-Type: application/json" \
-  -d "{
-    \"session_id\": \"my-session\",
-    \"files\": [{\"name\": \"my_document.pdf\", \"content\": \"$B64\"}]
-  }"
-```
+  -d "{\"session_id\": \"my-session\", \"files\": [{\"name\": \"report.pdf\", \"content\": \"$B64\"}]}"
 
-```json
-{
-  "success": true,
-  "session_id": "my-session",
-  "files_ingested": ["my_document.pdf"],
-  "total_files": 1
-}
-```
-
-#### Query
-
-```bash
+# Query
 curl -X POST http://localhost:8765/query \
   -H "Content-Type: application/json" \
-  -d '{"session_id": "my-session", "query": "What is the enrollment procedure?"}'
+  -d '{"session_id": "my-session", "query": "What are the key findings?"}'
 ```
 
-```json
-{
-  "success": true,
-  "session_id": "my-session",
-  "query": "What is the enrollment procedure?",
-  "response": "According to the documents, the enrollment procedure consists of..."
-}
-```
-
-#### Clear a session
-
-```bash
-curl -X POST http://localhost:8765/clear \
-  -H "Content-Type: application/json" \
-  -d '{"session_id": "my-session"}'
-```
-
-### Production Deployment Note
-
-The current implementation targets local and development usage:
-- No built-in authentication middleware.
-- CORS is permissive (`Access-Control-Allow-Origin: *`).
-- Session isolation is logical (per-session directories), not an access-control boundary.
-
-For production, front the API with a reverse proxy that enforces: API key / JWT
-authentication, HTTPS/TLS termination, rate limiting, and network-level allowlists.
+</details>
 
 ---
 
-## Python Library
-
-The framework can be imported directly into any Python project.
-Run scripts from the `rag/` directory (or add it to `sys.path`).
+### Python Library
 
 ```python
 from rag_framework import RAGFramework
 
-# ── Default configuration ─────────────────────────────────────────────────────
+# ── Default configuration ──────────────────────────────────────────────────
 rag = RAGFramework()
-rag.ingest()                                  # index ./documents/
+rag.ingest()                              # index ./documents/
 response = rag.query("What are the main topics?")
-print(response)
 
-# ── Load from YAML ────────────────────────────────────────────────────────────
+# ── Load from YAML ─────────────────────────────────────────────────────────
 rag = RAGFramework.from_yaml("config/huggingface.yaml")
 
-# ── Directed queries (bypass the router) ─────────────────────────────────────
-rag.query("general question")                 # auto-routed
-rag.query_documents("explain the regulation") # documents only
-rag.query_sql("how many users are there?")    # SQL only
-rag.query_hybrid("sales data and trends")     # both sources
+# ── Directed queries (bypass the router) ──────────────────────────────────
+rag.query_documents("explain the methodology")  # unstructured only
+rag.query_sql("how many records exist?")        # SQL only
+rag.query_hybrid("revenue trends and context")  # both in parallel
 
-# ── Interactive terminal chat ─────────────────────────────────────────────────
-rag.ingest()
-rag.chat()
-
-# ── Configuration and prompt management ──────────────────────────────────────
-rag.set_prompt_template("conversational_en")
-rag.set_custom_prompt(
-    "Answer only from the context below.\n"
-    "Context: {context_str}\nQuestion: {query_str}\nAnswer:"
-)
+# ── Configuration management ───────────────────────────────────────────────
+rag.set_prompt_template("academic_es_v2")
 rag.save_config("my_config.yaml")
 rag.validate_models()
 
-# ── Index lifecycle ───────────────────────────────────────────────────────────
-rag.load_index()    # load a previously created index without re-ingesting
-rag.clear_index()   # remove all indexed data
+# ── Index lifecycle ────────────────────────────────────────────────────────
+rag.load_index()    # load without re-ingesting
+rag.clear_index()   # wipe the vector store
 ```
 
-More examples in `rag/examples/usage_examples.py`.
-
----
-
-## Model Download
-
-Download HuggingFace models for fully offline operation:
-
-```bash
-cd rag
-
-# Download by type and shortcut name
-python run_rag.py download llm tiny-llama
-python run_rag.py download embedding all-MiniLM-L6-v2
-python run_rag.py download reranker bge-reranker-base
-
-# Download by full HuggingFace model ID
-python run_rag.py download llm meta-llama/Llama-2-7b-chat-hf --token YOUR_HF_TOKEN
-
-# List available shortcuts
-python run_rag.py download --list-popular
-
-# Custom output directory
-python run_rag.py download llm tiny-llama --output ./models/my-llm
-```
-
-**Popular model shortcuts:**
-
-| Type | Shortcut | HuggingFace ID |
-|---|---|---|
-| LLM | `tiny-llama` | TinyLlama/TinyLlama-1.1B-Chat-v1.0 |
-| LLM | `mistral-7b-instruct` | mistralai/Mistral-7B-Instruct-v0.2 |
-| LLM | `phi-2` | microsoft/phi-2 |
-| Embedding | `all-MiniLM-L6-v2` | sentence-transformers/all-MiniLM-L6-v2 |
-| Embedding | `all-mpnet-base-v2` | sentence-transformers/all-mpnet-base-v2 |
-| Reranker | `bge-reranker-base` | BAAI/bge-reranker-base |
-| Reranker | `bge-reranker-large` | BAAI/bge-reranker-large |
-
-Downloaded models are stored in `rag/models/` and referenced via `local_model_path`
-in the YAML configuration.
+More usage examples: `rag/examples/usage_examples.py` · `rag/examples/rag_client.ts`
 
 ---
 
 ## Demos
 
-Three runnable demo scripts are provided in `rag/demos/`:
-
-### REST API Walkthrough
+### REST API Walkthrough (`rag/demos/demo_api_rest.py`)
 
 ```bash
-cd rag
 # Terminal 1
 python run_rag.py api
 # Terminal 2
 python demos/demo_api_rest.py
 ```
 
-Walks through all API endpoints sequentially: health check → config inspection →
-session creation → document ingestion → query → session cleanup.
+Exercises all API endpoints sequentially: health → config → session → ingest → query → cleanup.
 
-### Academic Use Case
+### Academic Use Case (`rag/demos/demo_proyectos_docentes.py`)
 
-```bash
-cd rag
-python demos/demo_proyectos_docentes.py
-```
+Demonstrates the core research claim of this project using university course syllabi as a corpus — a domain where both document search and SQL queries are equally necessary:
 
-A real-world scenario using university course syllabi. Compares three modes:
+| Question type | Example | Best source |
+|:---:|---------|:---:|
+| Qualitative | *"What is the methodology of Artificial Intelligence?"* | Documents (PDFs) |
+| Quantitative | *"How many elective courses are in the catalog?"* | SQL → `SELECT COUNT(*)` |
+| Hybrid | *"How many credits does AI have and what topics does it cover?"* | Both in parallel |
 
-1. **Documents-only** — qualitative questions (methodology, evaluation criteria, content).
-2. **SQL-only** — quantitative queries ("How many elective courses are there?").
-3. **Hybrid** — the router directs each query to the appropriate source automatically.
-
-This demo illustrates why multi-source RAG matters: document search excels at qualitative
-questions while SQL excels at quantitative ones. Hybrid mode handles both without the user
-needing to specify which source to use.
+The demo shows all three modes in sequence (documents-only → SQL-only → hybrid), illustrating where each mode excels and fails, and how the router resolves ambiguous queries automatically.
 
 ---
 
-## Testing & Evaluation
-
-### Running Tests
+## Testing
 
 ```bash
 cd rag
 pytest                      # all tests
-pytest tests/unit/          # unit tests only
-pytest tests/integration/   # integration tests only
-pytest -v --tb=short        # verbose output
-```
-
-**Test suite coverage:**
-
-- **Unit tests** — config parsing, provider factories, SQL validation, router logic.
-- **Integration tests** — full ingest → query → response pipeline.
-- **Evaluation tests** — retrieval quality and SQL correctness metrics.
-
-### Evaluation Framework
-
-The project includes a supervised evaluation pipeline in `rag/validation/`:
-
-```bash
-cd rag
-
-# Run the default evaluation suite
-python validation/run_eval.py --run-id eval_v1
-
-# Inspect results
-python validation/inspect_run.py eval_v1
-python validation/inspect_run.py eval_v1 --type sql
-python validation/inspect_run.py eval_v1 --query-id s01
-python validation/inspect_run.py eval_v1 --percentile 95
-```
-
-**Dataset (`rag/validation/dataset.json`):**
-
-80 supervised queries across five types with expected routing decisions, source patterns,
-and abstention labels:
-
-| Partition | Queries | Purpose |
-|---|---|---|
-| `well_formed` | 48 | Measures the system's performance ceiling |
-| `adversarial` | 32 | Reveals component-level limits |
-
-| Query type | Description |
-|---|---|
-| `rag` | Answer lives in unstructured documents |
-| `sql` | Answer lives in the structured SQL database |
-| `hybrid` | Requires combining evidence from both sources |
-| `negative` | System must abstain (information not in the corpus) |
-| `out_of_domain` | Completely outside the domain |
-
-Each evaluation run produces `validation/runs/<run-id>/events.jsonl` with per-query
-latency broken down by pipeline phase (embedding, BM25, vector, RRF, reranker,
-synthesis), routing decisions with confidence scores, and CRAG grading details.
-
----
-
-## Troubleshooting
-
-| Symptom | Likely Cause | Action |
-|---|---|---|
-| Query returns empty answer | No index loaded or retrieval too restrictive | Re-run ingestion, verify `top_k`, disable strict metadata filters |
-| SQL path fails repeatedly | Schema mismatch or unsupported SQL pattern | Inspect schema, reduce query ambiguity, check `max_retries` |
-| Router chooses wrong source | Keyword lists or thresholds not tuned | Adjust `keyword_confidence_threshold`, review keyword dictionaries, test with manual override tags |
-| Very slow responses | CRAG + reranker + large model active simultaneously | Profile with `debug: true`, try CRAG off, reduce `top_k`, use a lighter model |
-| API works locally but fails from browser | CORS / proxy / auth mismatch | Validate reverse proxy headers and CORS configuration |
-| Embedding model mismatch on load | Changed embedding model without re-indexing | Run `clear_index()` then `ingest()` with the new model |
-
-**Suggested debugging workflow:**
-
-1. Reproduce in CLI first (`run_rag.py cli`) to isolate transport issues.
-2. Enable `debug: true` in the config and capture the full pipeline logs.
-3. Use **Option 4 — Validate models** in the CLI to confirm model connectivity.
-4. Re-run the same query via API to compare behaviour.
-
----
-
-## Repository Structure
-
-```
-.
-├── rag/                            ← CORE FRAMEWORK (Python)
-│   ├── run_rag.py                  #   Unified entry point: CLI · API · model download
-│   ├── requirements.txt
-│   ├── pytest.ini
-│   │
-│   ├── rag_framework/              #   Core engine
-│   │   ├── framework.py            #     RAGFramework — public facade
-│   │   ├── exceptions.py
-│   │   ├── validators.py
-│   │   ├── config/                 #     Pydantic config models + YAML loader
-│   │   │   ├── rag_config.py       #       Root RAGConfig (typed + validated)
-│   │   │   ├── loader.py           #       YAML → dataclass resolution
-│   │   │   └── …                   #       LLM, embedding, retrieval, SQL, CRAG configs
-│   │   ├── core/                   #     Pipeline engines
-│   │   │   ├── ingestion.py        #       Document loading and chunking (Docling)
-│   │   │   ├── indexing.py         #       Vector index creation and management
-│   │   │   ├── retrieval.py        #       Hybrid retriever (vector + BM25 + RRF)
-│   │   │   ├── query_engine.py     #       Document query engine
-│   │   │   ├── hybrid_engine.py    #       Multi-source hybrid query engine
-│   │   │   ├── corrective_rag.py   #       CRAG: grading, rewriting, re-retrieval
-│   │   │   └── query_preprocessor.py #     Metadata detection + pre-filters
-│   │   ├── providers/              #     Factory pattern: LLM · embeddings · vector store · reranker
-│   │   ├── routing/
-│   │   │   └── router.py           #     3-layer query router
-│   │   ├── sql/                    #     NL-to-SQL subsystem
-│   │   │   ├── agent.py            #       SQL generation + retries
-│   │   │   ├── validator.py        #       Security validation (SELECT-only, whitelist)
-│   │   │   ├── executor.py         #       Safe query execution
-│   │   │   └── schema.py           #       Schema extraction and description
-│   │   ├── operations/             #     Composition managers
-│   │   │   ├── lifecycle.py        #       Initialisation and factory methods
-│   │   │   ├── index.py            #       Ingestion and index lifecycle
-│   │   │   ├── query.py            #       Query routing and dispatch
-│   │   │   ├── hybrid.py           #       Hybrid component initialisation
-│   │   │   └── config.py           #       Configuration and prompt management
-│   │   ├── prompts/
-│   │   │   └── templates.py        #     11 built-in prompt templates (ES / EN / multilingual)
-│   │   ├── interfaces/
-│   │   │   └── chat.py             #     Interactive chat loop
-│   │   ├── display/                #     Console formatting utilities
-│   │   └── utils/                  #     Logging, constants, model downloader, device detection
-│   │
-│   ├── api/                        #   REST API server
-│   │   ├── server.py               #     HTTP server bootstrap and routing
-│   │   ├── handlers.py             #     Endpoint handlers (health, ingest, query, …)
-│   │   ├── sessions.py             #     Session isolation manager
-│   │   └── config_builder.py       #     Per-session config constructor
-│   │
-│   ├── cli/                        #   Interactive terminal interface
-│   │   ├── menu/                   #     Menu controller and rendering
-│   │   ├── handlers/               #     Business logic for each menu option
-│   │   ├── wizards/                #     Configuration wizard (per-component)
-│   │   ├── ui/                     #     Formatters and input helpers
-│   │   └── discovery/              #     Discover local models, configs, databases
-│   │
-│   ├── config/                     #   Ready-to-use YAML configurations
-│   ├── demos/                      #   Runnable demo scripts
-│   ├── examples/                   #   Python usage examples
-│   ├── scripts/                    #   Utility scripts (data prep, model download)
-│   │   └── metrics/                #     Standalone evaluation scripts
-│   ├── tests/                      #   Test suite
-│   │   ├── unit/
-│   │   ├── integration/
-│   │   └── evaluation/
-│   ├── validation/                 #   Supervised evaluation pipeline
-│   │   ├── dataset.json            #     80-query annotated dataset
-│   │   ├── run_eval.py             #     Evaluation runner
-│   │   ├── inspect_run.py          #     Run inspection CLI
-│   │   └── evaluation/             #     Metrics, judges, analysis, visualisation
-│   └── docs/                       #   Supplementary documentation
-│
-└── ui/                             ← DEMO LAYER (Next.js 14)
-    ├── app/                        #   Next.js app router (pages + API proxy routes)
-    ├── components/                 #   React UI components (chat, sidebar, RAG panel)
-    ├── lib/custom-rag/client.ts    #   TypeScript client for the RAG REST API
-    ├── supabase/                   #   Auth and chat persistence (schema + migrations)
-    └── package.json
+pytest tests/unit/          # config parsing, factories, SQL validator, router logic
+pytest tests/integration/   # full ingest → query → response pipeline
+pytest tests/evaluation/    # retrieval quality and SQL correctness metrics
+pytest -v --tb=short        # verbose
 ```
 
 ---
 
-## UI — Demo Layer
+## UI — Chat Interface
 
-The `ui/` directory contains a Next.js 14 chat application that wraps the RAG framework
-in a browser interface. It is provided as a demonstration of how the REST API can be
-integrated into a production-quality frontend.
+`ui/` contains a **Next.js 14** chat application wrapping the RAG REST API in a browser interface — provided to demonstrate production-quality frontend integration.
 
 ```
 Browser → Next.js API routes → RAG REST API (localhost:8765)
 ```
 
-**Features:** multi-provider LLM support (OpenAI, Anthropic, Google, Groq, Mistral, …),
-Supabase authentication and conversation persistence, document upload panel, RAG
-configuration panel, dark/light mode, internationalisation (18 languages).
-
-**Running the UI:**
+**Features:**
+- Multi-provider LLM support (OpenAI · Anthropic · Google · Groq · Mistral)
+- Supabase authentication and conversation persistence
+- Document upload panel
+- RAG configuration panel
+- Dark/light mode
+- Internationalisation (18 languages)
 
 ```bash
-# 1. Start the RAG backend first
-cd rag && python run_rag.py api
-
-# 2. Install and configure the UI
+cd rag && python run_rag.py api    # start backend
 cd ui
 cp .env.local.example .env.local   # fill in Supabase keys
 npm install
-npm run chat                        # supabase start + Next.js dev server
+npm run chat                        # supabase start + Next.js dev
 ```
 
-Requires: Node v20, Supabase CLI, Docker (for local Supabase), Ollama running locally.
+Requires: Node v20+, Supabase CLI, Docker (local Supabase), Ollama.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+|:------|:-----------|
 | **RAG engine** | [LlamaIndex](https://github.com/run-llama/llama_index) ≥ 0.12 |
 | **LLM / embeddings** | [Ollama](https://ollama.com) (local) · HuggingFace Transformers |
-| **Vector store** | [LanceDB](https://lancedb.github.io/lancedb/) (default) · Chroma · FAISS · Qdrant · Pinecone |
+| **Vector store** | [LanceDB](https://lancedb.github.io/lancedb/) · Chroma · FAISS · Qdrant · Pinecone |
 | **Reranker** | [FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding) — BGE cross-encoder |
-| **Document parsing** | [Docling](https://github.com/DS4SD/docling) — PDF · DOCX · PPTX · HTML · XLSX |
+| **Document parsing** | [Docling](https://github.com/DS4SD/docling) — structure-aware (PDF · DOCX · PPTX · HTML · XLSX) |
 | **SQL abstraction** | SQLAlchemy — SQLite · PostgreSQL · MySQL |
 | **Configuration** | Pydantic dataclasses + PyYAML |
 | **Testing** | pytest + pytest-asyncio |
@@ -1316,13 +995,95 @@ Requires: Node v20, Supabase CLI, Docker (for local Supabase), Ollama running lo
 
 ---
 
-## Future Roadmap
+## Project Structure
 
-- **Chat history buffer** — Sliding window of recent turns with query condensing
-  (Condense Question pattern), enabling multi-turn conversations with accumulated context.
-- **RAGAS evaluation** — Integration with the RAGAS framework for faithfulness, answer
-  relevancy, and context precision metrics beyond the current IR-focused evaluation.
-- **Response streaming** — Token-by-token display instead of waiting for the complete
-  response, reducing perceived latency.
-- **Source citation** — Inline references in answers (e.g. `[1] document.pdf, p.23`)
-  for full auditability of every claim.
+```
+local_rag_framework/
+├── rag/                            # Core Python backend
+│   ├── rag_framework/              # Main package
+│   │   ├── core/                   #   Retrieval, ingestion, CRAG, query engines
+│   │   ├── providers/              #   LLM, embedding, vector store, reranker factories
+│   │   ├── routing/                #   3-layer query router
+│   │   ├── sql/                    #   NL-to-SQL agent, validator, executor
+│   │   ├── operations/             #   Lifecycle, index, query, hybrid, config ops
+│   │   ├── prompts/                #   11 built-in prompt templates
+│   │   ├── config/                 #   Pydantic configuration models
+│   │   └── framework.py            #   Main RAGFramework class
+│   ├── api/                        # FastAPI REST server
+│   ├── cli/                        # Interactive CLI
+│   ├── config/                     # Ready-to-use YAML configurations
+│   ├── tests/                      # Unit, integration, and evaluation tests
+│   ├── validation/                 # 80-query evaluation pipeline
+│   ├── demos/                      # Runnable demo scripts
+│   └── run_rag.py                  # Entry point
+├── ui/                             # Next.js 14 chat frontend
+│   ├── app/                        #   App router pages
+│   ├── components/                 #   React components
+│   ├── supabase/                   #   Auth + persistence
+│   └── worker/                     #   Background workers
+├── docs/                           # Documentation and media assets
+└── license                         # Apache 2.0
+```
+
+---
+
+## References
+
+> Papers whose ideas are **directly implemented** in this codebase, grouped by subsystem. Citation keys match the in-text references above.
+
+**Retrieval & ranking**
+
+**[1]** Lewis, P., et al. (2020). **Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.** *NeurIPS 2020*, pp. 9459–9474. [arXiv:2005.11401](https://arxiv.org/abs/2005.11401)
+
+**[2]** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). **Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods.** *SIGIR '09*, pp. 758–759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
+
+**[3]** Robertson, S., & Zaragoza, H. (2009). **The Probabilistic Relevance Framework: BM25 and Beyond.** *Foundations and Trends in Information Retrieval*, 3(4), 333–389. [DOI: 10.1561/1500000019](https://doi.org/10.1561/1500000019)
+
+**[4]** Malkov, Y. A., & Yashunin, D. A. (2018). **Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs.** *IEEE TPAMI*, 42(4), 824–836. [DOI: 10.1109/TPAMI.2018.2889473](https://doi.org/10.1109/TPAMI.2018.2889473)
+
+**[5]** Reimers, N., & Gurevych, I. (2019). **Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.** *EMNLP-IJCNLP 2019*, pp. 3982–3992. [arXiv:1908.10084](https://arxiv.org/abs/1908.10084)
+
+**[6]** Nogueira, R., & Cho, K. (2019). **Passage Re-ranking with BERT.** [arXiv:1901.04085](https://arxiv.org/abs/1901.04085)
+
+**[7]** Chen, J., Xiao, S., Zhang, P., Luo, K., Lian, D., & Liu, Z. (2024). **BGE M3-Embedding: Multi-Lingual, Multi-Functional, Multi-Granular Text Embeddings Through Self-Knowledge Distillation.** [arXiv:2402.03216](https://arxiv.org/abs/2402.03216)
+
+**Corrective RAG, NL-to-SQL & generation**
+
+**[8]** Yan, S.-Q., Gu, J.-C., Zhu, Y., & Ling, Z.-H. (2024). **Corrective Retrieval Augmented Generation.** [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
+
+**[9]** Pourreza, M., & Rafiei, D. (2023). **DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction.** *NeurIPS 2023*. [arXiv:2304.11015](https://arxiv.org/abs/2304.11015)
+
+**[10]** Yu, T., et al. (2018). **Spider: A Large-Scale Human-Labeled Dataset for Complex and Cross-Domain Semantic Parsing and Text-to-SQL Task.** *EMNLP 2018*, pp. 3911–3921. [ACL Anthology](https://aclanthology.org/D18-1425/)
+
+**[11]** Dettmers, T., Lewis, M., Belkada, Y., & Zettlemoyer, L. (2022). **LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale.** *NeurIPS 2022*. [arXiv:2208.07339](https://arxiv.org/abs/2208.07339)
+
+**Ingestion & evaluation**
+
+**[12]** Auer, C., et al. (2024). **Docling Technical Report.** [DOI: 10.48550/arXiv.2408.09869](https://doi.org/10.48550/arXiv.2408.09869)
+
+**[13]** Järvelin, K., & Kekäläinen, J. (2002). **Cumulated Gain-Based Evaluation of IR Techniques.** *ACM TOIS*, 20(4), 422–446. [DOI: 10.1145/582415.582418](https://doi.org/10.1145/582415.582418)
+
+**[14]** Gao, Y., et al. (2024). **Retrieval-Augmented Generation for Large Language Models: A Survey.** [arXiv:2312.10997](https://arxiv.org/abs/2312.10997)
+
+<details>
+<summary><b>📕 Evaluated and rejected (see <a href="#-what-was-tried-and-rejected">What Was Tried and Rejected</a>)</b></summary>
+
+**[15]** Gao, L., Ma, X., Lin, J., & Callan, J. (2023). **Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE).** *ACL 2023*, pp. 1762–1777. [DOI: 10.18653/v1/2023.acl-long.99](https://doi.org/10.18653/v1/2023.acl-long.99)
+
+**[16]** Jeong, S., Baek, J., Cho, S., Hwang, S. J., & Park, J. C. (2024). **Adaptive-RAG: Learning to Adapt Retrieval-Augmented LLMs through Question Complexity.** *NAACL 2024*. [arXiv:2403.14403](https://arxiv.org/abs/2403.14403)
+
+**[17]** Edge, D., et al. (2024). **From Local to Global: A Graph RAG Approach to Query-Focused Summarization.** [arXiv:2404.16130](https://arxiv.org/abs/2404.16130)
+
+**[18]** Guo, Z., Xia, L., Yu, Y., Ao, T., & Huang, C. (2024). **LightRAG: Simple and Fast Retrieval-Augmented Generation.** [arXiv:2410.05779](https://arxiv.org/abs/2410.05779)
+
+</details>
+
+---
+
+<div align="center">
+
+*Developed as a Bachelor's Thesis (Double Degree in Mathematics & Computer Engineering) at the University of Seville, 2025–26.*
+
+Licensed under [Apache 2.0](license).
+
+</div>

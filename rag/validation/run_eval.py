@@ -36,6 +36,7 @@ Events:  validation/runs/<run_id>/events.jsonl  (one JSON per line per query)
 
 import argparse
 import json
+import logging
 import math
 import re
 import sys
@@ -55,6 +56,10 @@ _DATASET_DEFAULT = Path(__file__).parent / "dataset.json"
 _CONFIG_DEFAULT = _ROOT / "config" / "proyectos_docentes.yaml"
 _RUNS_DIR = Path(__file__).parent / "runs"
 _K_VALUES_DEFAULT = [3, 5, 10]
+_MAX_RETRIEVAL_RETRIES = 2
+_RETRIEVAL_RETRY_SLEEP_S = 1.0
+
+logger = logging.getLogger(__name__)
 
 # Maps dataset query types to router source labels
 _LABEL_TO_SOURCE = {
@@ -150,10 +155,25 @@ def _retrieve(retriever, postprocessors, preprocessor, query_str: str) -> List[s
         prefilter_result = preprocessor.analyse(query_str)
         metadata_filters = prefilter_result.metadata_filters
 
-    if metadata_filters is not None:
-        nodes = retriever.retrieve(query_str, filters=metadata_filters)
-    else:
-        nodes = retriever.retrieve(query_str)
+    try:
+        if metadata_filters is not None:
+            nodes = retriever.retrieve(query_str, filters=metadata_filters)
+        else:
+            nodes = retriever.retrieve(query_str)
+    except Exception as exc:
+        # If hybrid vector retrieval fails (e.g. transient Ollama NaN), keep
+        # the evaluation running by falling back to BM25-only retrieval.
+        if not hasattr(retriever, "bm25_retriever"):
+            raise
+
+        logger.warning(
+            "Hybrid retrieval failed for query '%s' (%s). Falling back to BM25-only.",
+            query_str[:80],
+            exc,
+        )
+        nodes = retriever.bm25_retriever.retrieve(query_str)
+        if metadata_filters is not None and hasattr(retriever, "_manual_metadata_filter"):
+            nodes = retriever._manual_metadata_filter(nodes, metadata_filters)
 
     for pp in postprocessors:
         nodes = pp.postprocess_nodes(nodes, query_str=query_str)
@@ -172,6 +192,36 @@ def _retrieve(retriever, postprocessors, preprocessor, query_str: str) -> List[s
         )
 
     return [n.node.metadata.get("file_name", "") for n in nodes]
+
+
+def _retrieve_with_retries(
+    retriever,
+    postprocessors,
+    preprocessor,
+    query_str: str,
+    max_retries: int = _MAX_RETRIEVAL_RETRIES,
+) -> List[str]:
+    """Retry retrieval a few times for transient provider failures."""
+    last_error = None
+    total_attempts = max_retries + 1
+
+    for attempt in range(1, total_attempts + 1):
+        try:
+            return _retrieve(retriever, postprocessors, preprocessor, query_str)
+        except Exception as exc:
+            last_error = exc
+            if attempt >= total_attempts:
+                break
+            logger.warning(
+                "Retrieval failed for query '%s' (%d/%d): %s. Retrying...",
+                query_str[:80],
+                attempt,
+                total_attempts,
+                exc,
+            )
+            time.sleep(_RETRIEVAL_RETRY_SLEEP_S)
+
+    raise last_error
 
 
 # ---------------------------------------------------------------------------
@@ -201,11 +251,26 @@ def run_retrieval_suite(rag, queries: List[dict], k_values: List[int], full_pipe
         retriever.config.top_k = max(max_k, retriever.config.top_k)
 
     per_query = []
+    errors = []
     t_start = time.time()
 
     for item in rag_queries:
         t0 = time.time()
-        files = _retrieve(retriever, postprocessors, preprocessor, item["query"])
+        try:
+            files = _retrieve_with_retries(
+                retriever, postprocessors, preprocessor, item["query"]
+            )
+            error_msg = None
+        except Exception as exc:
+            files = []
+            error_msg = str(exc)
+            errors.append({"id": item["id"], "error": error_msg})
+            logger.error(
+                "Query %s failed after retries in retrieval suite: %s",
+                item["id"],
+                exc,
+            )
+
         elapsed = time.time() - t0
         pat = item["expected_source_pattern"]
 
@@ -214,6 +279,7 @@ def run_retrieval_suite(rag, queries: List[dict], k_values: List[int], full_pipe
             "query": item["query"],
             "pattern": pat,
             "files": files,
+            "error": error_msg,
             "elapsed_s": elapsed,
             "hit_at_k": {k: _hit_at_k(files, pat, k) for k in k_values},
             "rr_at_k": {k: _rr_at_k(files, pat, k) for k in k_values},
@@ -239,6 +305,7 @@ def run_retrieval_suite(rag, queries: List[dict], k_values: List[int], full_pipe
         "aggregates": aggregates,
         "k_values": k_values,
         "full_pipeline": full_pipeline,
+        "errors": errors,
     }
 
 
@@ -483,6 +550,10 @@ def print_retrieval(result: dict, label: str = ""):
             f"  {k:>3}  {agg[f'hr@{k}']:>7.3f}  {agg[f'mrr@{k}']:>7.3f}"
             f"  {agg[f'p@{k}']:>7.3f}  {agg[f'ndcg@{k}']:>7.3f}"
         )
+
+    errors = result.get("errors") or []
+    if errors:
+        print(f"\n  Retrieval errors handled: {len(errors)} (counted as misses).")
 
     # Show misses at the smallest k
     k0 = k_values[0]
