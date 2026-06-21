@@ -2,9 +2,9 @@
 
 # Local RAG Framework
 
-**A research-grade, fully-local Retrieval-Augmented Generation system that unifies unstructured documents and relational databases through a single natural-language interface.**
+**A fully local Retrieval-Augmented Generation system that answers questions from your documents, your SQL database, or both, through a single natural-language interface.**
 
-*Ask one question. Get answers from PDFs, databases, or both — automatically.*
+*Ask one question. The system works out whether the answer lives in a PDF, in a database, or in both, and retrieves accordingly.*
 
 <br/>
 
@@ -22,87 +22,93 @@
 
   <a href="https://www.youtube.com/watch?v=rBVghMyY3ao" target="_blank" rel="noopener noreferrer">
     <img
-      alt="▶ Watch the demo video on YouTube"
+      alt="Watch the demo video on YouTube"
       width="720"
       src="demo-video-card.svg"
     />
   </a>
   <br/>
-  <sup>▶ Click to watch a full walkthrough on YouTube</sup>
+  <sup>Click to watch a full walkthrough on YouTube</sup>
 
 <br/>
 
-*Bachelor's Thesis (Trabajo de Fin de Grado) — Double Degree in Mathematics & Computer Engineering — University of Seville, 2025–26*
+*Bachelor's Thesis (Trabajo de Fin de Grado), Double Degree in Mathematics and Computer Engineering, University of Seville, 2025/26*
 
 <br/>
 
-<img alt="Key results: 0.952 NDCG@10 · 93.8% NL2SQL · 100% abstention · 8.3 s latency" width="850" src="stat_strip.svg" />
+<img alt="Key results: 0.952 NDCG@10, 93.8% NL2SQL, 100% abstention, 8.3 s latency" width="850" src="stat_strip.svg" />
 
 </div>
 
 ---
 
-## Why This Project Exists
+## What this is
 
-Most production RAG systems make a **simplifying assumption that breaks in practice**: all the knowledge lives in one place.
+I built this as my final-year thesis, but I treated it like something I would have to maintain after the grade was in. It is a local RAG framework with one capability most systems skip over: it answers questions that span both unstructured documents and a relational database, and it decides where to look on its own.
 
-In reality, organizations hold information in two structurally incompatible forms:
+You ask in plain language. The system classifies the question, retrieves from the right source (a PDF, a SQL table, or both at once), and writes an answer grounded in what it found. Every component runs locally on a consumer GPU. There are no API keys and no data leaves the machine.
 
-| Source Type | Example Question | What's Needed |
-|:---:|:---|:---|
-| **Documents** | *"What is the evaluation methodology for AI?"* | Semantic search across PDFs, reports, policies |
-| **Database** | *"How many elective courses are in the catalog?"* | `SELECT COUNT(*)` — not vector similarity |
-| **Both** | *"How many credits does AI have and what topics does it cover?"* | SQL result + document context, merged intelligently |
-
-A system that can only handle one of these forces users to know *where* to look before they can *ask what* they want.
-
-**This framework eliminates that friction.** One question in, one answer out — the system decides the rest.
+The interesting engineering is not the happy path. It is everything around it: knowing when *not* to answer, recovering from a bad SQL query, measuring which part of the pipeline actually moves the numbers, and being willing to delete techniques that looked good on paper but did nothing here. That is what the rest of this README is about.
 
 ---
 
-## Key Highlights
+## The problem I wanted to solve
+
+Most RAG systems assume all the knowledge lives in one place. In practice it never does. Organizations keep information in two shapes that need completely different retrieval strategies:
+
+| Source type | Example question | What it actually needs |
+|:---:|:---|:---|
+| **Documents** | *"What is the evaluation methodology for the AI course?"* | Semantic search across PDFs, reports, policies |
+| **Database** | *"How many elective courses are in the catalog?"* | A `SELECT COUNT(*)`, not vector similarity |
+| **Both** | *"How many credits does AI have and what topics does it cover?"* | A SQL result and document context, merged sensibly |
+
+A system that only handles one of these forces the user to know *where* to look before they can ask *what* they want. This framework removes that step. One question goes in, one answer comes out, and the routing happens underneath.
+
+---
+
+## What I'd point a reviewer to first
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### Production-Grade Architecture
-- **Composition over inheritance** design with 5 specialized operation managers
-- **Factory pattern** for hot-swappable providers (LLM, embeddings, vector stores, rerankers) — zero code changes
-- **YAML-driven configuration** — switch from Ollama to HuggingFace, LanceDB to Pinecone, in one line
+### The architecture holds up under change
+- Composition over inheritance: `RAGFramework` delegates to five focused operation managers instead of one growing class.
+- A factory layer makes providers hot-swappable. Switching LLM, embeddings, vector store, or reranker is a config change, not a code change.
+- One YAML file drives the whole pipeline. Moving from Ollama to HuggingFace, or LanceDB to Pinecone, is a single line.
 
 </td>
 <td width="50%" valign="top">
 
-### Paper-Grounded Pipeline
-Every retrieval decision is backed by peer-reviewed research:
-- **Hybrid BM25 + Dense Vector** retrieval with **RRF Fusion** [[Cormack et al., 2009]](#references)
-- **Cross-Encoder Reranking** [[Nogueira & Cho, 2019]](#references) with BGE-M3 [[Chen et al., 2024]](#references)
-- **Corrective RAG** — LLM-graded relevance with query rewriting [[Yan et al., 2024]](#references)
-- **Schema-conditioned NL-to-SQL** with self-correction [[Pourreza & Rafiei, 2023]](#references)
+### Every retrieval choice is grounded in a paper
+The pipeline is not a pile of trendy parts. Each piece earns its place:
+- Hybrid BM25 and dense retrieval with RRF fusion ([Cormack et al., 2009](#references))
+- Cross-encoder reranking ([Nogueira & Cho, 2019](#references)) with BGE-M3 ([Chen et al., 2024](#references))
+- Corrective RAG with LLM-graded relevance and query rewriting ([Yan et al., 2024](#references))
+- Schema-conditioned NL-to-SQL with self-correction ([Pourreza & Rafiei, 2023](#references))
 
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 
-### Zero Cloud Dependency
-Every component runs locally on consumer-grade hardware:
-- LLM inference via **Ollama**
-- Embeddings via **BGE-M3** (multilingual)
-- Reranking via **FlagEmbedding** cross-encoder
-- Vector storage via **LanceDB**
+### Nothing touches the cloud
+Every component runs on consumer hardware:
+- LLM inference through **Ollama**
+- Embeddings from **BGE-M3** (multilingual)
+- Reranking through a **FlagEmbedding** cross-encoder
+- Vector storage in **LanceDB**
 
-**No API keys. No data leaves your machine.**
+No API keys, no external calls, no data leaving the box.
 
 </td>
 <td width="50%" valign="top">
 
-### Rigorous Evaluation
-- **80-query supervised benchmark** over a real corpus (154 PDFs · 39 SQL tables), split into well-formed and adversarial regimes
-- **7-configuration ablation** isolating each retrieval component's contribution
-- **Per-phase latency telemetry** (embedding → BM25 → vector → RRF → reranker → CRAG → synthesis)
-- Measures routing accuracy, retrieval quality, SQL correctness, and **adversarial robustness**
+### I measured it honestly
+- An 80-query supervised benchmark over a real corpus (154 PDFs, 39 SQL tables), split into well-formed and adversarial sets.
+- A 7-configuration ablation that isolates what each retrieval component actually contributes.
+- Per-phase latency telemetry from embedding all the way to synthesis.
+- Metrics for routing accuracy, retrieval quality, SQL correctness, and behaviour under adversarial input.
 
 </td>
 </tr>
@@ -112,26 +118,28 @@ Every component runs locally on consumer-grade hardware:
 
 ## Results
 
-> Measured on a supervised 80-query benchmark over a **real corpus of 154 PDFs and 39 SQL tables** (the Computer Engineering degree at the University of Seville). The benchmark splits into a *well-formed* regime (natural, in-vocabulary queries) and an *adversarial* regime (colloquial paraphrase, typos, out-of-corpus). Full methodology in [Evaluation Framework](#evaluation-framework).
+> Measured on a supervised 80-query benchmark over a **real corpus of 154 PDFs and 39 SQL tables** (the Computer Engineering degree at the University of Seville). The benchmark splits into a *well-formed* set (natural, in-vocabulary queries) and an *adversarial* set (colloquial paraphrase, typos, out-of-corpus questions). Full methodology lives in [Evaluation Framework](#evaluation-framework).
 
 <div align="center">
 
-<img alt="Retrieval quality and adversarial robustness — NDCG@10 and MRR@10 well-formed ceiling vs. pipeline adversarial gains" width="850" src="fig_results_highlights.svg" />
+<img alt="Retrieval quality and adversarial robustness: NDCG@10 and MRR@10 well-formed ceiling versus pipeline adversarial gains" width="850" src="fig_results_highlights.svg" />
 
 <br/>
 
-<img alt="End-to-end latency breakdown by phase — LLM synthesis 69.3%, LLM router 15.6%, reranker 14.1%, retrieval 2.2%" width="850" src="fig_latency_breakdown.svg" />
+<img alt="End-to-end latency breakdown by phase: LLM synthesis 69.3%, LLM router 15.6%, reranker 14.1%, retrieval 2.2%" width="850" src="fig_latency_breakdown.svg" />
 
 </div>
 
 <br/>
+
+Two numbers I care about most. First, **100% abstention on out-of-corpus queries**: when the answer is not in the corpus, the system declines instead of hallucinating. Second, the latency breakdown, because it told me exactly where to stop optimizing. Retrieval is 2% of the time budget. Tuning it would have been wasted effort. The generator is the bottleneck.
 
 <details>
 <summary><b>Full results table</b></summary>
 
 | Dimension | Metric | Result |
 |:---|:---|:---:|
-| **Retrieval — full pipeline (C6)** | NDCG@10 (global) | **0.860** |
+| **Retrieval, full pipeline (C6)** | NDCG@10 (global) | **0.860** |
 | | HR@10 / MRR@10 (global) | **0.933** / **0.838** |
 | | NDCG@10 (well-formed ceiling) | **0.942** |
 | | NDCG@10 (adversarial) | **0.695** |
@@ -144,9 +152,9 @@ Every component runs locally on consumer-grade hardware:
 </details>
 
 <details>
-<summary><b>Component ablation — NDCG@10 by regime (the core experiment)</b></summary>
+<summary><b>Component ablation: NDCG@10 by regime (the core experiment)</b></summary>
 
-Seven configurations isolate each component's contribution over the 45 ground-truth retrieval queries (`wf` = well-formed, n=30 · `adv` = adversarial, n=15):
+Seven configurations isolate each component's contribution over the 45 ground-truth retrieval queries (`wf` = well-formed, n=30; `adv` = adversarial, n=15):
 
 | Config | Components | NDCG@10 (wf) | NDCG@10 (adv) | NDCG@10 (global) |
 |:---|:---|:---:|:---:|:---:|
@@ -157,61 +165,61 @@ Seven configurations isolate each component's contribution over the 45 ground-tr
 | C5 | hybrid + reranker (no filter) | **0.952** | 0.571 | 0.825 |
 | **C6** | **full pipeline (hybrid + filter + reranker)** | 0.942 | **0.695** | **0.860** |
 
-> The C5 well-formed peak of **0.952** is the system's ranking ceiling on in-vocabulary queries; the full pipeline (C6) trades a hair of that ceiling for a decisive **+0.124 adversarial** gain — the trade-off the architecture is designed around.
+The C5 well-formed peak of **0.952** is the system's ranking ceiling on in-vocabulary queries. The full pipeline (C6) gives up a sliver of that ceiling to gain **+0.124 NDCG@10 on adversarial queries**. That trade is the whole point of the architecture: I would rather lose a hair on easy questions than fall apart on messy ones.
 
 </details>
 
 <details>
-<summary><b>Routing, SQL robustness & latency breakdown</b></summary>
+<summary><b>Routing, SQL robustness, and latency breakdown</b></summary>
 
-**Query router (80 queries):** the two well-defined classes route cleanly — `structured` recall = **1.000** (every SQL query correctly identified) and `unstructured` precision = **0.943**. Raw global accuracy lands at 65%, but that figure is dominated by the `hybrid` class, where the "failure" is diagnostic rather than fatal: the benchmark's hybrid queries turned out to be two concatenated single-source questions ("*how many credits does X have **and** what topics does it cover?*"), which the classifier correctly decomposes by routing each clause to its natural branch.
+**Query router (80 queries):** the two well-defined classes route cleanly. `structured` recall is **1.000** (every SQL query correctly identified) and `unstructured` precision is **0.943**. Raw global accuracy lands at 65%, but that figure is dominated by the `hybrid` class, where the "failure" is diagnostic rather than fatal. The benchmark's hybrid queries turned out to be two single-source questions glued together (*"how many credits does X have **and** what topics does it cover?"*), and the classifier correctly decomposes them by routing each clause to its natural branch.
 
-**NL-to-SQL agent (32 ground-truth SQL queries):** 93.8% execution success, 68.8% on the first attempt, 1.38 attempts on average. Notably, the *adversarial* split scores **higher** (100% vs 88.9% well-formed) — colloquial phrasing forces the model into more schema exploration and more conservative SQL, reducing column hallucination.
+**NL-to-SQL agent (32 ground-truth SQL queries):** 93.8% execution success, 68.8% on the first attempt, 1.38 attempts on average. The *adversarial* split scores **higher** than the well-formed one (100% versus 88.9%), which surprised me until I looked closer: colloquial phrasing pushes the model into more schema exploration and more conservative SQL, which reduces column hallucination.
 
-**Latency — synthesis is the bottleneck:** of the 8.3 s mean end-to-end, **LLM synthesis consumes 69.3%** (≈4.6 s), the LLM router 15.6%, the reranker 14.1%, and the entire BM25 + vector + RRF retrieval stack just **2.1%**. The optimization target is unambiguous: shorten the generator's context or swap the model — tuning retrieval would be noise.
+**Latency, synthesis is the bottleneck:** of the 8.3 s mean end-to-end, **LLM synthesis eats 69.3%** (around 4.6 s), the LLM router 15.6%, the reranker 14.1%, and the entire BM25 + vector + RRF retrieval stack just **2.1%**. The optimization target is not ambiguous: shorten the generator's context or swap the model. Touching retrieval would be noise.
 
 </details>
 
 <details>
-<summary><b>Limitations & honest caveats</b></summary>
+<summary><b>Limitations and honest caveats</b></summary>
 
 Stated plainly, because they bound what the numbers mean:
-- **Benchmark scale.** 80 queries reveal stable trends and separate configurations, but per-class confidence intervals (e.g. the hybrid router class, n=14) would be wide; bootstrap CIs were not computed.
-- **Single generator.** All numbers use `qwen3:8b`. Router behavior, synthesis latency, and abstention depend on it; a larger model would likely reduce failures. The *retrieval ablation* generalizes beyond the model, since BM25 / vector / reranker are generator-independent.
-- **Closed domain.** The corpus is one degree's course catalog and queries were authored with corpus knowledge. Evaluation on organic user queries is future work.
-- **Abstention is a proxy.** It's measured by canonical-pattern detection against the prompt template, not human semantic judgement.
+- **Benchmark scale.** 80 queries show stable trends and separate the configurations cleanly, but per-class confidence intervals (for example the hybrid router class, n=14) would be wide. I did not compute bootstrap CIs.
+- **Single generator.** Every number uses `qwen3:8b`. Router behaviour, synthesis latency, and abstention all depend on it, and a larger model would likely cut failures. The retrieval ablation generalizes past the model, since BM25, vector, and reranker are generator-independent.
+- **Closed domain.** The corpus is one degree's course catalog, and I wrote the queries with knowledge of that corpus. Evaluating on organic user queries is future work.
+- **Abstention is a proxy.** I measure it by canonical-pattern detection against the prompt template, not by human semantic judgement.
 
 </details>
 
 ---
 
-## What Was Tried and Rejected
+## What I tried and threw away
 
-The final architecture is the **residue of empirical elimination, not a checklist of trendy components.** Across eight sprints, several widely-cited techniques were implemented and then dropped because they did **not** survive testing under local quantized models:
+The final architecture is what survived testing, not a checklist of popular components. Across eight sprints I implemented several widely-cited techniques and then removed them, because under local quantized models they did not earn their cost:
 
-| Technique | Why it was rejected |
+| Technique | Why I dropped it |
 |:---|:---|
-| **HyDE** (hypothetical-document embeddings) | No measurable retrieval gain on this corpus; added a full generation pass to every query. |
-| **GraphRAG / LightRAG** (knowledge graphs) | Indexing cost and brittleness under a quantized local LLM outweighed the benefit for this corpus scale. |
-| **Adaptive-RAG** (complexity-routed strategy) | Apparent gains did not hold up; the complexity classifier was unreliable under local models. |
+| **HyDE** (hypothetical-document embeddings) | No measurable retrieval gain on this corpus, and it added a full generation pass to every query. |
+| **GraphRAG / LightRAG** (knowledge graphs) | Indexing cost and brittleness under a quantized local LLM outweighed the benefit at this corpus scale. |
+| **Adaptive-RAG** (complexity-routed strategy) | The apparent gains did not hold up. The complexity classifier was unreliable under local models. |
 
-What remained is what measurably worked: hybrid retrieval with RRF and reranking, a depth-validated NL-to-SQL agent, a cascading router, and Corrective RAG.
+What stayed is what measurably worked: hybrid retrieval with RRF and reranking, a depth-validated NL-to-SQL agent, a cascading router, and Corrective RAG. I think being able to say *why something is not in the system* matters as much as listing what is.
 
 ---
 
-## Project Scope
+## Project scope
 
 <div align="center">
 
 | Capability | Coverage |
 |:---|:---:|
-| Pluggable vector stores | **5** — LanceDB · Chroma · FAISS · Qdrant · Pinecone |
-| Document formats parsed | **8** — PDF · DOCX · PPTX · HTML · MD · TXT · XLSX · CSV |
-| LLM / embedding back-ends | **Ollama** (local) · **HuggingFace** |
-| Prompt templates | **11** — Spanish · English · Multilingual |
-| Evaluation corpus | **154 PDFs · 39 SQL tables** (real university catalog) |
-| Benchmark | **80 labelled queries** · 7-config retrieval ablation |
-| Test suite | **23 test files** — unit · integration · evaluation |
+| Pluggable vector stores | **5**: LanceDB, Chroma, FAISS, Qdrant, Pinecone |
+| Document formats parsed | **8**: PDF, DOCX, PPTX, HTML, MD, TXT, XLSX, CSV |
+| LLM and embedding back-ends | **Ollama** (local), **HuggingFace** |
+| Prompt templates | **11**: Spanish, English, multilingual |
+| Evaluation corpus | **154 PDFs, 39 SQL tables** (real university catalog) |
+| Benchmark | **80 labelled queries**, 7-config retrieval ablation |
+| Test suite | **23 test files**: unit, integration, evaluation |
 
 </div>
 
@@ -219,10 +227,10 @@ What remained is what measurably worked: hybrid retrieval with RRF and reranking
 
 ## Table of Contents
 
-- [Results](#-results)
-- [What Was Tried and Rejected](#-what-was-tried-and-rejected)
+- [Results](#results)
+- [What I tried and threw away](#what-i-tried-and-threw-away)
 - [System Architecture](#system-architecture)
-- [Retrieval Pipeline — Technical Deep Dive](#retrieval-pipeline--technical-deep-dive)
+- [Retrieval Pipeline, technical deep dive](#retrieval-pipeline-technical-deep-dive)
   - [Hybrid Retrieval with RRF Fusion](#hybrid-retrieval-with-rrf-fusion)
   - [Cross-Encoder Reranking](#cross-encoder-reranking)
   - [Corrective RAG](#corrective-rag)
@@ -240,7 +248,7 @@ What remained is what measurably worked: hybrid retrieval with RRF and reranking
   - [Python Library](#python-library)
 - [Demos](#demos)
 - [Testing](#testing)
-- [UI — Chat Interface](#ui--chat-interface)
+- [UI, Chat Interface](#ui-chat-interface)
 - [Tech Stack](#tech-stack)
 - [References](#references)
 
@@ -248,22 +256,22 @@ What remained is what measurably worked: hybrid retrieval with RRF and reranking
 
 ## System Architecture
 
-The framework follows a **composition over inheritance** design: `RAGFramework` delegates to five specialized operation managers, each owning a distinct responsibility boundary. Every provider is created through a **factory pattern**, making components interchangeable at configuration time without touching source code.
+The framework is built on composition over inheritance. `RAGFramework` delegates to five focused operation managers, each owning one responsibility boundary, and every provider is created through a factory so components stay interchangeable at configuration time without touching source code.
 
 <div align="center">
 
-<img alt="End-to-end query pipeline: Phase 1 Preprocessing → Phase 2 Routing → Phase 3 Retrieval (documentary · SQL · hybrid routes) → Phase 4 Synthesis" width="600" src="design.svg" />
+<img alt="End-to-end query pipeline: Phase 1 Preprocessing, Phase 2 Routing, Phase 3 Retrieval (documentary, SQL, hybrid routes), Phase 4 Synthesis" width="600" src="design.svg" />
 
 <br/>
 
-<sub>End-to-end query pipeline — from preprocessing and routing through the documentary, SQL, and hybrid retrieval routes to final LLM synthesis.</sub>
+<sub>The end-to-end query pipeline, from preprocessing and routing through the documentary, SQL, and hybrid retrieval routes to final LLM synthesis.</sub>
 
 </div>
 
 <br/>
 
 <details>
-<summary><b>Simplified flow (Mermaid · renders natively on GitHub)</b></summary>
+<summary><b>Simplified flow (Mermaid, renders natively on GitHub)</b></summary>
 
 ```mermaid
 flowchart TD
@@ -288,7 +296,7 @@ flowchart TD
 </details>
 
 <details>
-<summary><b>Expand: full component diagram (operations · core · providers)</b></summary>
+<summary><b>Expand: full component diagram (operations, core, providers)</b></summary>
 
 ```mermaid
 graph TB
@@ -298,10 +306,10 @@ graph TB
         LIB["Python Library"]
     end
 
-    subgraph Framework["RAGFramework — framework.py"]
+    subgraph Framework["RAGFramework (framework.py)"]
         direction TB
 
-        subgraph Ops["Operations — Composition Pattern"]
+        subgraph Ops["Operations, Composition Pattern"]
             LM["Lifecycle Manager"]
             IO["Index Operations"]
             QO["Query Operations"]
@@ -319,7 +327,7 @@ graph TB
             QP["QueryPreprocessor"]
         end
 
-        subgraph Prov["Providers — Factory Pattern"]
+        subgraph Prov["Providers, Factory Pattern"]
             LLM["LLM Factory<br/>(Ollama · HuggingFace)"]
             EMB["Embedding Factory<br/>(Ollama · sentence-transformers)"]
             VS["VectorStore Factory<br/>(LanceDB · Chroma · FAISS · Qdrant · Pinecone)"]
@@ -345,31 +353,31 @@ graph TB
 
 ---
 
-## Retrieval Pipeline — Technical Deep Dive
+## Retrieval Pipeline, technical deep dive
 
 ### Hybrid Retrieval with RRF Fusion
 
-Dense vector retrieval captures semantic similarity but struggles with rare keywords, proper nouns, and exact-match requirements. Sparse BM25 handles these cases but fails at semantic paraphrase. This system runs both in parallel and combines rankings using **Reciprocal Rank Fusion** [Cormack et al., 2009].
+Dense vector retrieval captures meaning but stumbles on rare keywords, proper nouns, and exact-match needs. Sparse BM25 handles those cases but fails on paraphrase. So I run both in parallel and combine their rankings with **Reciprocal Rank Fusion** [Cormack et al., 2009].
 
 For a document $d$ retrieved across ranking lists $R$ (one per retrieval modality):
 
 $$\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)}$$
 
-where $k = 60$ is a smoothing constant that penalises top-rank outliers and $\text{rank}_r(d)$ is the 1-indexed position of document $d$ in ranking list $r$. The configurable $\alpha$ parameter blends the two streams before fusion:
+where $k = 60$ is a smoothing constant that softens the influence of top-rank outliers and $\text{rank}_r(d)$ is the 1-indexed position of document $d$ in ranking list $r$. A configurable $\alpha$ parameter blends the two streams before fusion:
 
 $$\text{score}_{\text{hybrid}}(d) = \alpha \cdot \text{score}_{\text{vec}}(d) + (1 - \alpha) \cdot \text{score}_{\text{BM25}}(d)$$
 
-where $\alpha \in [0, 1]$ (default 0.5). Setting $\alpha = 1$ degrades to pure vector retrieval; $\alpha = 0$ to pure lexical.
+where $\alpha \in [0, 1]$ (default 0.5). Setting $\alpha = 1$ degrades to pure vector retrieval and $\alpha = 0$ to pure lexical.
 
-> **Reference:** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). *Reciprocal rank fusion outperforms condorcet and individual rank learning methods*. SIGIR '09, pp. 758–759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
+> **Reference:** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). *Reciprocal rank fusion outperforms condorcet and individual rank learning methods*. SIGIR '09, pp. 758-759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
 
 ---
 
 ### Cross-Encoder Reranking
 
-The top-$K$ candidates from RRF fusion pass through a **BGE cross-encoder reranker** [Nogueira & Cho, 2019] before reaching the LLM context window. Cross-encoders perform full self-attention over the concatenated query–document pair, yielding a relevance score that is strictly more accurate than the cosine similarity used in bi-encoder retrieval [Reimers & Gurevych, 2019] — at the cost of $O(K)$ inference passes.
+The top-$K$ candidates from RRF fusion pass through a **BGE cross-encoder reranker** [Nogueira & Cho, 2019] before they reach the LLM context window. Cross-encoders run full self-attention over the concatenated query and document, which gives a relevance score strictly more accurate than the cosine similarity a bi-encoder uses [Reimers & Gurevych, 2019], at the cost of $O(K)$ inference passes.
 
-Unlike bi-encoders which embed query and document independently and compare via dot product:
+Where a bi-encoder embeds query and document independently and compares with a dot product:
 
 $$\text{sim}(q, d) = E_q(q) \cdot E_d(d)^\top$$
 
@@ -377,15 +385,15 @@ the cross-encoder processes them jointly:
 
 $$\text{score}(q, d) = \text{CrossEncoder}([q; \texttt{[SEP]}; d])$$
 
-enabling token-level attention across the query–document boundary. The top-$N$ documents ($N \ll K$) after reranking are passed to the LLM.
+which lets attention cross the query-document boundary at the token level. The top-$N$ documents ($N \ll K$) after reranking go to the LLM.
 
-> **Reference:** Nogueira, R., & Cho, K. (2019). *Passage Re-ranking with BERT*. arXiv:1901.04085. — The reranker model is BAAI/bge-reranker-v2-m3 [Chen et al., 2024].
+> **Reference:** Nogueira, R., & Cho, K. (2019). *Passage Re-ranking with BERT*. arXiv:1901.04085. The reranker model is BAAI/bge-reranker-v2-m3 [Chen et al., 2024].
 
 ---
 
 ### Corrective RAG
 
-Standard RAG assumes retrieved documents are relevant — an assumption that breaks when queries are ambiguous, the corpus is heterogeneous, or embedding models suffer distribution shift. **Corrective RAG** [Yan et al., 2024] adds an LLM-based evaluation step that grades each retrieved chunk before synthesis.
+Standard RAG assumes the documents it retrieved are relevant. That assumption breaks when queries are ambiguous, the corpus is mixed, or the embedding model hits distribution shift. **Corrective RAG** [Yan et al., 2024] adds an LLM grading step that scores each retrieved chunk before synthesis.
 
 **Pipeline:**
 
@@ -399,7 +407,7 @@ flowchart TD
     F --> B
 ```
 
-The `relevance_threshold` parameter ($\tau \in [0, 1]$, default 0.5) controls sensitivity. At $\tau = 0$, CRAG only grades without triggering rewrites; at $\tau = 1$, any irrelevant document forces a rewrite. `max_retries` caps the rewrite–re-retrieve loop.
+The `relevance_threshold` parameter ($\tau \in [0, 1]$, default 0.5) controls sensitivity. At $\tau = 0$, CRAG grades without ever triggering a rewrite. At $\tau = 1$, any irrelevant document forces one. `max_retries` caps the rewrite and re-retrieve loop.
 
 > **Reference:** Yan, S., Gu, J., Zhu, Y., & Ling, Z. (2024). *Corrective Retrieval Augmented Generation*. arXiv:2401.15884.
 
@@ -407,7 +415,7 @@ The `relevance_threshold` parameter ($\tau \in [0, 1]$, default 0.5) controls se
 
 ### NL-to-SQL Agent
 
-The SQL path implements a schema-conditioned generation loop inspired by DIN-SQL [Pourreza & Rafiei, 2023]. The agent receives a structured schema representation — table descriptions, column types, foreign key relationships, and few-shot exemplars — and generates SQL that is validated before execution.
+The SQL path is a schema-conditioned generation loop, modelled on DIN-SQL [Pourreza & Rafiei, 2023]. The agent gets a structured view of the schema (table descriptions, column types, foreign keys, and few-shot exemplars) and generates SQL that is validated before it ever runs.
 
 **Self-correction loop** (up to `max_retries = 3`):
 
@@ -427,11 +435,11 @@ flowchart TD
 
 | Threat | Control |
 |--------|---------|
-| Destructive statements (`DROP`, `DELETE`, `UPDATE`) | Non-SELECT rejected pre-execution |
-| Injection tautologies (`OR 1=1`) | Pattern validator + LLM regeneration loop |
-| Schema probing | Table/column whitelist |
+| Destructive statements (`DROP`, `DELETE`, `UPDATE`) | Non-SELECT rejected before execution |
+| Injection tautologies (`OR 1=1`) | Pattern validator plus LLM regeneration loop |
+| Schema probing | Table and column whitelist |
 | Data exfiltration | `max_rows` cap enforced at execution |
-| Persistent malformed SQL | Bounded retries with explicit failure signal |
+| Persistent malformed SQL | Bounded retries with an explicit failure signal |
 
 </details>
 
@@ -441,16 +449,16 @@ flowchart TD
 
 ## 3-Layer Query Router
 
-The router classifies each query as `UNSTRUCTURED` (documents), `STRUCTURED` (SQL), or `HYBRID` without requiring user-provided tags. Classification proceeds through three layers in strict priority order:
+The router decides whether a query is `UNSTRUCTURED` (documents), `STRUCTURED` (SQL), or `HYBRID`, without asking the user to tag anything. It works through three layers in strict priority order:
 
 | Layer | Mechanism | Latency | When it fires |
 |:---:|-----------|:---:|---------------|
-| **0 — Manual override** | Explicit tag in query text | ~0 ms | Testing / forced routing |
-| **1 — Keyword rules** | Pattern matching over configurable vocabulary | ~1 ms | Confidence ≥ `keyword_confidence_threshold` |
-| **2 — LLM classifier** | LLM receives query + schema summary → classification | ~200–800 ms | Layer 1 inconclusive |
-| **3 — Post-execution fallback** | If primary source returns 0 results, retry with alternative | Varies | Empty result set |
+| **0, Manual override** | Explicit tag in the query text | ~0 ms | Testing or forced routing |
+| **1, Keyword rules** | Pattern matching over configurable vocabulary | ~1 ms | Confidence ≥ `keyword_confidence_threshold` |
+| **2, LLM classifier** | LLM receives query plus schema summary, returns a class | ~200-800 ms | Layer 1 inconclusive |
+| **3, Post-execution fallback** | If the primary source returns nothing, retry the alternative | Varies | Empty result set |
 
-Layer 1 resolving early **avoids the LLM call entirely**, minimizing latency for common query patterns.
+When Layer 1 resolves early it skips the LLM call entirely, which keeps latency low for common query patterns.
 
 <details>
 <summary><b>Decision tree</b></summary>
@@ -467,7 +475,6 @@ flowchart TD
     F0 --> EX["Execute selected source"]
     F1 --> EX
     F2 --> EX
-    FD --> EX
     EX --> L3{"Layer 3<br/>empty result AND fallback_on_empty?"}
     L3 -->|Yes| RT["Retry: try_unstructured · try_hybrid · try_sql"]
     L3 -->|No| DONE["Return result"]
@@ -497,9 +504,9 @@ flowchart TD
     K --> L["Serialise nodes.pkl\nfor BM25 lexical index"]
 ```
 
-**Document parsing** uses [Docling](https://github.com/DS4SD/docling) [Auer et al., 2024] — an IBM Research toolkit that preserves document structure (section headings, table cells, reading order) during chunking, significantly outperforming naive character-split approaches for complex PDFs.
+For parsing I use [Docling](https://github.com/DS4SD/docling) [Auer et al., 2024], an IBM Research toolkit that keeps document structure (section headings, table cells, reading order) intact during chunking. It noticeably beats naive character splitting on complex PDFs, which is most of what a real corpus contains.
 
-**Metadata extraction** supports regex-based field extraction from filenames with optional SQLite enrichment (e.g., resolving a subject code `2060001` → `"Fundamentos de Programación"`). Extracted metadata enables **query-time pre-filtering**: the `QueryPreprocessor` detects mentioned entity values via fuzzy matching and constructs vector store filters before retrieval, reducing false positives from semantically overlapping documents.
+Metadata extraction pulls fields from filenames with regex and can enrich them from SQLite (for example, resolving a subject code `2060001` into `"Fundamentos de Programación"`). That metadata then powers query-time pre-filtering: the `QueryPreprocessor` spots mentioned entities by fuzzy matching and builds vector store filters before retrieval runs, which cuts down false positives from documents that overlap semantically.
 
 > **Reference:** Auer, C. et al. (2024). *Docling: An Efficient Open-Source Toolkit for AI-driven Document Conversion*. arXiv:2408.09869.
 
@@ -507,35 +514,35 @@ flowchart TD
 
 ## Evaluation Framework
 
-The project includes a supervised evaluation pipeline (`rag/validation/`) with **80 labelled queries** built from scratch over the real corpus (154 PDFs · 39 SQL tables), partitioned into two regimes designed to measure both the system's performance ceiling and its failure modes.
+The repo includes a supervised evaluation pipeline (`rag/validation/`) with **80 labelled queries** I built from scratch over the real corpus (154 PDFs, 39 SQL tables). It is split into two sets, one to measure the ceiling and one to find the failure modes.
 
 ### Dataset Structure
 
-The benchmark splits into a **well-formed** regime (48 queries — clear, in-vocabulary, referring to corpus entities) and an **adversarial** regime (32 queries — semantic overlap, colloquial phrasing, deliberate typos, expected abstention, or out-of-domain):
+The benchmark has a **well-formed** set (48 queries: clear, in-vocabulary, referring to real corpus entities) and an **adversarial** set (32 queries: semantic overlap, colloquial phrasing, deliberate typos, expected abstention, or out-of-domain):
 
 | Family | Well-formed | Adversarial | Total | What it stresses |
 |:---|:---:|:---:|:---:|:---|
 | **RAG** (documents) | 25 | 10 | 35 | Unstructured retrieval quality |
-| **SQL** (structured) | 10 | 8 | 18 | NL-to-SQL accuracy & self-correction |
-| **Hybrid** | 8 | 6 | 14 | Multi-source routing & evidence merge |
+| **SQL** (structured) | 10 | 8 | 18 | NL-to-SQL accuracy and self-correction |
+| **Hybrid** | 8 | 6 | 14 | Multi-source routing and evidence merge |
 | **Negative** | 5 | 4 | 9 | Abstention on absent-but-plausible facts |
-| **Out-of-domain** | – | 4 | 4 | Abstention on unrelated queries |
+| **Out-of-domain** | 0 | 4 | 4 | Abstention on unrelated queries |
 | **Total** | **48** | **32** | **80** | |
 
-Of these, **45 carry ground-truth retrieval labels** (the retrieval ablation set), **32 carry ground-truth SQL**, and **13 measure abstention** (negative + out-of-domain). NDCG@*k* is the primary metric, as it is the only one of the four canonical IR metrics (HR@*k*, MRR@*k*, P@*k*, NDCG@*k*) that explicitly rewards rank order [Järvelin & Kekäläinen, 2002].
+Of these, **45 carry ground-truth retrieval labels** (the retrieval ablation set), **32 carry ground-truth SQL**, and **13 measure abstention** (negative plus out-of-domain). NDCG@*k* is the primary metric, because of the four canonical IR metrics (HR@*k*, MRR@*k*, P@*k*, NDCG@*k*) it is the one that explicitly rewards rank order [Järvelin & Kekäläinen, 2002].
 
 Each query carries:
-- `expected_source_pattern` — regex matching the expected source document(s)
-- `expected_keywords` — minimum required terms in the answer
-- `expected_abstention` — whether the system should decline to answer
-- `expected_behaviors.routing` — expected router decision
-- `expected_behaviors.crag_should_rewrite` — whether CRAG rewrite should trigger
-- `difficulty` — `easy | medium | hard`
+- `expected_source_pattern`: regex matching the expected source document(s)
+- `expected_keywords`: minimum required terms in the answer
+- `expected_abstention`: whether the system should decline to answer
+- `expected_behaviors.routing`: expected router decision
+- `expected_behaviors.crag_should_rewrite`: whether a CRAG rewrite should trigger
+- `difficulty`: `easy`, `medium`, or `hard`
 
 <details>
 <summary><b>Per-query telemetry example</b></summary>
 
-Every evaluation run logs `events.jsonl` with per-query breakdown:
+Every evaluation run logs `events.jsonl` with a per-query breakdown:
 
 ```json
 {
@@ -582,20 +589,20 @@ python validation/inspect_run.py eval_v1 --percentile 95   # latency P95
 
 | Category | What's implemented |
 |----------|:-------------------|
-| **LLM Providers** | Ollama (local) · HuggingFace Transformers (local/remote) |
-| **Embedding Providers** | Ollama · HuggingFace sentence-transformers (BGE, E5, MiniLM, …) |
-| **Vector Stores** | LanceDB (default) · ChromaDB · FAISS · Qdrant · Pinecone |
-| **Retrieval** | Dense vector · BM25 · Hybrid BM25+vector with RRF fusion |
-| **Reranking** | BGE cross-encoder (bge-reranker-base / large / v2-m3) · Ollama reranker |
-| **SQL Databases** | SQLite · PostgreSQL · MySQL — NL-to-SQL with self-correction |
-| **Query Router** | 3-layer: keyword rules → LLM classifier → post-exec fallback |
-| **Corrective RAG** | LLM-graded relevance + configurable query rewriting |
-| **Document Formats** | PDF · DOCX · PPTX · HTML · Markdown · TXT · XLSX · CSV |
-| **Chunking** | Semantic (Docling-aware, structure-preserving) · Fixed-size |
-| **Metadata** | Regex extraction from filenames · DB enrichment · pre-filter at query time |
-| **Prompt Templates** | 11 built-in (Spanish · English · multilingual) · custom string supported |
-| **Interfaces** | Interactive CLI · Session-isolated REST API · Python library |
-| **Evaluation** | 80-query supervised benchmark · per-phase latency telemetry |
+| **LLM Providers** | Ollama (local), HuggingFace Transformers (local/remote) |
+| **Embedding Providers** | Ollama, HuggingFace sentence-transformers (BGE, E5, MiniLM, and more) |
+| **Vector Stores** | LanceDB (default), ChromaDB, FAISS, Qdrant, Pinecone |
+| **Retrieval** | Dense vector, BM25, hybrid BM25+vector with RRF fusion |
+| **Reranking** | BGE cross-encoder (bge-reranker-base / large / v2-m3), Ollama reranker |
+| **SQL Databases** | SQLite, PostgreSQL, MySQL, with NL-to-SQL and self-correction |
+| **Query Router** | 3-layer: keyword rules, LLM classifier, post-exec fallback |
+| **Corrective RAG** | LLM-graded relevance plus configurable query rewriting |
+| **Document Formats** | PDF, DOCX, PPTX, HTML, Markdown, TXT, XLSX, CSV |
+| **Chunking** | Semantic (Docling-aware, structure-preserving), fixed-size |
+| **Metadata** | Regex extraction from filenames, DB enrichment, pre-filter at query time |
+| **Prompt Templates** | 11 built-in (Spanish, English, multilingual), custom strings supported |
+| **Interfaces** | Interactive CLI, session-isolated REST API, Python library |
+| **Evaluation** | 80-query supervised benchmark, per-phase latency telemetry |
 
 ---
 
@@ -604,7 +611,7 @@ python validation/inspect_run.py eval_v1 --percentile 95   # latency P95
 **Requirements:**
 - Python 3.10+
 - [Ollama](https://ollama.com) installed and running (for the default configuration)
-- NVIDIA GPU with CUDA *(optional — accelerates HuggingFace reranker)*
+- NVIDIA GPU with CUDA (optional, speeds up the HuggingFace reranker)
 
 ```bash
 # 1. Pull default models (Ollama)
@@ -642,14 +649,14 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-All commands assume you are inside `rag/`:
+Every command assumes you are inside `rag/`:
 
 ```bash
 cd rag
 conda activate rag-env   # or your preferred env
 ```
 
-### Option A — Interactive CLI
+### Option A, Interactive CLI
 
 ```bash
 python run_rag.py cli
@@ -658,17 +665,17 @@ python run_rag.py cli
 # → Option 2: Start chatting
 ```
 
-### Option B — REST API
+### Option B, REST API
 
 ```bash
-# Terminal 1 — start the server
+# Terminal 1, start the server
 python run_rag.py api
 
-# Terminal 2 — verify
+# Terminal 2, verify
 curl http://localhost:8765/health
 ```
 
-### Option C — Python Library
+### Option C, Python Library
 
 ```python
 from rag_framework import RAGFramework
@@ -690,7 +697,7 @@ rag.query_hybrid("sales trends this quarter")  # both sources
 
 ## Configuration Reference
 
-All pipeline behaviour is controlled by a single YAML file. Default: `rag/config/rag_config.yaml`.
+The whole pipeline is controlled by one YAML file. Default: `rag/config/rag_config.yaml`.
 
 <details>
 <summary><b>⚙️ Full configuration reference (click to expand)</b></summary>
@@ -726,14 +733,14 @@ vector_store:
 chunking:
   chunk_size: 1536
   chunk_overlap: 200
-  use_semantic_chunking: true   # DoclingNodeParser — structure-preserving
+  use_semantic_chunking: true   # DoclingNodeParser, structure-preserving
   semantic_oversized_factor: 1.5
 
 # ── Retrieval ─────────────────────────────────────────────────────────────────
 retrieval:
   use_hybrid_search: true       # BM25 + vector with RRF
   top_k: 15                     # candidates entering the reranker
-  alpha: 0.5                    # 0 = BM25 only  ·  1 = vector only
+  alpha: 0.5                    # 0 = BM25 only ; 1 = vector only
   rrf_k: 80                     # RRF smoothing constant k
   reranker:
     enabled: true
@@ -779,7 +786,7 @@ router:
 # ── Corrective RAG ────────────────────────────────────────────────────────────
 corrective_rag:
   enabled: false
-  relevance_threshold: 0.5     # τ — minimum relevant ratio before rewrite
+  relevance_threshold: 0.5     # τ, minimum relevant ratio before rewrite
   max_retries: 1               # 0 = grade-only, no rewrite
 
 # ── Metadata Extraction ───────────────────────────────────────────────────────
@@ -812,11 +819,11 @@ debug: false                   # logs chunks, scores, and routing decisions
 
 | File | Description |
 |------|-------------|
-| `rag_config.yaml` | **Default** — Ollama + LanceDB + hybrid + reranker + SQL + router |
+| `rag_config.yaml` | Default: Ollama, LanceDB, hybrid, reranker, SQL, router |
 | `huggingface.yaml` | HuggingFace models instead of Ollama (GPU recommended) |
-| `local_models.yaml` | Fully offline — locally downloaded HuggingFace models |
-| `chroma.yaml` | ChromaDB as vector store |
-| `sql_hybrid.yaml` | SQL + hybrid routing, fully configured |
+| `local_models.yaml` | Fully offline, locally downloaded HuggingFace models |
+| `chroma.yaml` | ChromaDB as the vector store |
+| `sql_hybrid.yaml` | SQL plus hybrid routing, fully configured |
 
 ---
 
@@ -829,7 +836,7 @@ cd rag
 python run_rag.py cli
 ```
 
-On launch: choose default config, run the interactive wizard, or load a YAML file. The main menu exposes 11 operations including **live feature toggles** (CRAG · SQL router · hybrid search · reranker · debug mode) without restarting.
+On launch you choose the default config, run the interactive wizard, or load a YAML file. The main menu exposes 11 operations, including live feature toggles (CRAG, SQL router, hybrid search, reranker, debug mode) without a restart.
 
 ```
 ╔════════════════════════════════════════╗
@@ -859,7 +866,7 @@ python run_rag.py api                                   # port 8765 (default)
 python run_rag.py api --port 8080 --config config/sql_hybrid.yaml
 ```
 
-Each **session** gets an isolated document directory and vector store — multiple clients run concurrently without state interference.
+Each session gets its own document directory and vector store, so multiple clients run at once without stepping on each other's state.
 
 | Method | Path | Description |
 |:------:|------|-------------|
@@ -924,7 +931,7 @@ rag.load_index()    # load without re-ingesting
 rag.clear_index()   # wipe the vector store
 ```
 
-More usage examples: `rag/examples/usage_examples.py` · `rag/examples/rag_client.ts`
+More usage examples live in `rag/examples/usage_examples.py` and `rag/examples/rag_client.ts`.
 
 ---
 
@@ -939,19 +946,19 @@ python run_rag.py api
 python demos/demo_api_rest.py
 ```
 
-Exercises all API endpoints sequentially: health → config → session → ingest → query → cleanup.
+It exercises every API endpoint in sequence: health, config, session, ingest, query, cleanup.
 
 ### Academic Use Case (`rag/demos/demo_proyectos_docentes.py`)
 
-Demonstrates the core research claim of this project using university course syllabi as a corpus — a domain where both document search and SQL queries are equally necessary:
+This one shows the core claim of the project on university course syllabi, a domain where document search and SQL queries are both genuinely needed:
 
 | Question type | Example | Best source |
 |:---:|---------|:---:|
 | Qualitative | *"What is the methodology of Artificial Intelligence?"* | Documents (PDFs) |
-| Quantitative | *"How many elective courses are in the catalog?"* | SQL → `SELECT COUNT(*)` |
+| Quantitative | *"How many elective courses are in the catalog?"* | SQL, `SELECT COUNT(*)` |
 | Hybrid | *"How many credits does AI have and what topics does it cover?"* | Both in parallel |
 
-The demo shows all three modes in sequence (documents-only → SQL-only → hybrid), illustrating where each mode excels and fails, and how the router resolves ambiguous queries automatically.
+The demo runs all three modes in order (documents only, SQL only, hybrid), so you can see where each shines, where each fails, and how the router resolves an ambiguous query without being told.
 
 ---
 
@@ -968,20 +975,20 @@ pytest -v --tb=short        # verbose
 
 ---
 
-## UI — Chat Interface
+## UI, Chat Interface
 
-`ui/` contains a **Next.js 14** chat application wrapping the RAG REST API in a browser interface — provided to demonstrate production-quality frontend integration.
+`ui/` holds a **Next.js 14** chat application that wraps the RAG REST API in a browser, included to show end-to-end frontend integration rather than just a backend.
 
 ```
 Browser → Next.js API routes → RAG REST API (localhost:8765)
 ```
 
 **Features:**
-- Multi-provider LLM support (OpenAI · Anthropic · Google · Groq · Mistral)
+- Multi-provider LLM support (OpenAI, Anthropic, Google, Groq, Mistral)
 - Supabase authentication and conversation persistence
 - Document upload panel
 - RAG configuration panel
-- Dark/light mode
+- Dark and light mode
 - Internationalisation (18 languages)
 
 ```bash
@@ -992,7 +999,7 @@ npm install
 npm run chat                        # supabase start + Next.js dev
 ```
 
-Requires: Node v20+, Supabase CLI, Docker (local Supabase), Ollama.
+Requires Node v20+, the Supabase CLI, Docker (for local Supabase), and Ollama.
 
 ---
 
@@ -1001,14 +1008,14 @@ Requires: Node v20+, Supabase CLI, Docker (local Supabase), Ollama.
 | Layer | Technology |
 |:------|:-----------|
 | **RAG engine** | [LlamaIndex](https://github.com/run-llama/llama_index) ≥ 0.12 |
-| **LLM / embeddings** | [Ollama](https://ollama.com) (local) · HuggingFace Transformers |
-| **Vector store** | [LanceDB](https://lancedb.github.io/lancedb/) · Chroma · FAISS · Qdrant · Pinecone |
-| **Reranker** | [FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding) — BGE cross-encoder |
-| **Document parsing** | [Docling](https://github.com/DS4SD/docling) — structure-aware (PDF · DOCX · PPTX · HTML · XLSX) |
-| **SQL abstraction** | SQLAlchemy — SQLite · PostgreSQL · MySQL |
-| **Configuration** | Pydantic dataclasses + PyYAML |
-| **Testing** | pytest + pytest-asyncio |
-| **UI** | Next.js 14 · TypeScript · Supabase · Tailwind CSS · Radix UI |
+| **LLM / embeddings** | [Ollama](https://ollama.com) (local), HuggingFace Transformers |
+| **Vector store** | [LanceDB](https://lancedb.github.io/lancedb/), Chroma, FAISS, Qdrant, Pinecone |
+| **Reranker** | [FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding), BGE cross-encoder |
+| **Document parsing** | [Docling](https://github.com/DS4SD/docling), structure-aware (PDF, DOCX, PPTX, HTML, XLSX) |
+| **SQL abstraction** | SQLAlchemy (SQLite, PostgreSQL, MySQL) |
+| **Configuration** | Pydantic dataclasses plus PyYAML |
+| **Testing** | pytest plus pytest-asyncio |
+| **UI** | Next.js 14, TypeScript, Supabase, Tailwind CSS, Radix UI |
 
 ---
 
@@ -1050,15 +1057,15 @@ local_rag_framework/
 
 **Retrieval & ranking**
 
-**[1]** Lewis, P., et al. (2020). **Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.** *NeurIPS 2020*, pp. 9459–9474. [arXiv:2005.11401](https://arxiv.org/abs/2005.11401)
+**[1]** Lewis, P., et al. (2020). **Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.** *NeurIPS 2020*, pp. 9459-9474. [arXiv:2005.11401](https://arxiv.org/abs/2005.11401)
 
-**[2]** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). **Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods.** *SIGIR '09*, pp. 758–759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
+**[2]** Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). **Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods.** *SIGIR '09*, pp. 758-759. [DOI: 10.1145/1571941.1572114](https://doi.org/10.1145/1571941.1572114)
 
-**[3]** Robertson, S., & Zaragoza, H. (2009). **The Probabilistic Relevance Framework: BM25 and Beyond.** *Foundations and Trends in Information Retrieval*, 3(4), 333–389. [DOI: 10.1561/1500000019](https://doi.org/10.1561/1500000019)
+**[3]** Robertson, S., & Zaragoza, H. (2009). **The Probabilistic Relevance Framework: BM25 and Beyond.** *Foundations and Trends in Information Retrieval*, 3(4), 333-389. [DOI: 10.1561/1500000019](https://doi.org/10.1561/1500000019)
 
-**[4]** Malkov, Y. A., & Yashunin, D. A. (2018). **Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs.** *IEEE TPAMI*, 42(4), 824–836. [DOI: 10.1109/TPAMI.2018.2889473](https://doi.org/10.1109/TPAMI.2018.2889473)
+**[4]** Malkov, Y. A., & Yashunin, D. A. (2018). **Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs.** *IEEE TPAMI*, 42(4), 824-836. [DOI: 10.1109/TPAMI.2018.2889473](https://doi.org/10.1109/TPAMI.2018.2889473)
 
-**[5]** Reimers, N., & Gurevych, I. (2019). **Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.** *EMNLP-IJCNLP 2019*, pp. 3982–3992. [arXiv:1908.10084](https://arxiv.org/abs/1908.10084)
+**[5]** Reimers, N., & Gurevych, I. (2019). **Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.** *EMNLP-IJCNLP 2019*, pp. 3982-3992. [arXiv:1908.10084](https://arxiv.org/abs/1908.10084)
 
 **[6]** Nogueira, R., & Cho, K. (2019). **Passage Re-ranking with BERT.** [arXiv:1901.04085](https://arxiv.org/abs/1901.04085)
 
@@ -1070,7 +1077,7 @@ local_rag_framework/
 
 **[9]** Pourreza, M., & Rafiei, D. (2023). **DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction.** *NeurIPS 2023*. [arXiv:2304.11015](https://arxiv.org/abs/2304.11015)
 
-**[10]** Yu, T., et al. (2018). **Spider: A Large-Scale Human-Labeled Dataset for Complex and Cross-Domain Semantic Parsing and Text-to-SQL Task.** *EMNLP 2018*, pp. 3911–3921. [ACL Anthology](https://aclanthology.org/D18-1425/)
+**[10]** Yu, T., et al. (2018). **Spider: A Large-Scale Human-Labeled Dataset for Complex and Cross-Domain Semantic Parsing and Text-to-SQL Task.** *EMNLP 2018*, pp. 3911-3921. [ACL Anthology](https://aclanthology.org/D18-1425/)
 
 **[11]** Dettmers, T., Lewis, M., Belkada, Y., & Zettlemoyer, L. (2022). **LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale.** *NeurIPS 2022*. [arXiv:2208.07339](https://arxiv.org/abs/2208.07339)
 
@@ -1078,14 +1085,14 @@ local_rag_framework/
 
 **[12]** Auer, C., et al. (2024). **Docling Technical Report.** [DOI: 10.48550/arXiv.2408.09869](https://doi.org/10.48550/arXiv.2408.09869)
 
-**[13]** Järvelin, K., & Kekäläinen, J. (2002). **Cumulated Gain-Based Evaluation of IR Techniques.** *ACM TOIS*, 20(4), 422–446. [DOI: 10.1145/582415.582418](https://doi.org/10.1145/582415.582418)
+**[13]** Järvelin, K., & Kekäläinen, J. (2002). **Cumulated Gain-Based Evaluation of IR Techniques.** *ACM TOIS*, 20(4), 422-446. [DOI: 10.1145/582415.582418](https://doi.org/10.1145/582415.582418)
 
 **[14]** Gao, Y., et al. (2024). **Retrieval-Augmented Generation for Large Language Models: A Survey.** [arXiv:2312.10997](https://arxiv.org/abs/2312.10997)
 
 <details>
-<summary><b>📕 Evaluated and rejected (see <a href="#-what-was-tried-and-rejected">What Was Tried and Rejected</a>)</b></summary>
+<summary><b>📕 Evaluated and rejected (see <a href="#what-i-tried-and-threw-away">What I tried and threw away</a>)</b></summary>
 
-**[15]** Gao, L., Ma, X., Lin, J., & Callan, J. (2023). **Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE).** *ACL 2023*, pp. 1762–1777. [DOI: 10.18653/v1/2023.acl-long.99](https://doi.org/10.18653/v1/2023.acl-long.99)
+**[15]** Gao, L., Ma, X., Lin, J., & Callan, J. (2023). **Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE).** *ACL 2023*, pp. 1762-1777. [DOI: 10.18653/v1/2023.acl-long.99](https://doi.org/10.18653/v1/2023.acl-long.99)
 
 **[16]** Jeong, S., Baek, J., Cho, S., Hwang, S. J., & Park, J. C. (2024). **Adaptive-RAG: Learning to Adapt Retrieval-Augmented LLMs through Question Complexity.** *NAACL 2024*. [arXiv:2403.14403](https://arxiv.org/abs/2403.14403)
 
@@ -1099,7 +1106,9 @@ local_rag_framework/
 
 <div align="center">
 
-*Developed as a Bachelor's Thesis (Double Degree in Mathematics & Computer Engineering) at the University of Seville, 2025–26.*
+**Built by Daniel Vázquez Sánchez** as a Bachelor's Thesis in the Double Degree in Mathematics and Computer Engineering, University of Seville, 2025/26.
+
+If you are hiring for ML or AI engineering roles and any of this is the kind of work you need, I would genuinely like to talk.
 
 Licensed under [Apache 2.0](license).
 
